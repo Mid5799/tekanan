@@ -1,0 +1,2058 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modul Interaktif Fizik SPM: Tekanan (Rajah Asal 100%)</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- PDF.js for 100% Original Unmodified Image Extraction from TEKANAN.pdf -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- Google Fonts Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    .dark ::-webkit-scrollbar-track { background: #1e293b; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    .dark ::-webkit-scrollbar-thumb { background: #475569; }
+    .transition-all-custom { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+    .original-img-frame {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+    }
+    .dark .original-img-frame {
+      background: #ffffff; /* Keep paper background white so original black-and-white scan is 100% unaltered */
+      border: 2px solid #475569;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-sans transition-colors duration-200"
+      ondragover="handleDragOver(event)" ondrop="handleDrop(event)">
+
+  <!-- Hidden File Input for TEKANAN.pdf -->
+  <input type="file" id="pdfFileInput" accept="application/pdf" class="hidden" onchange="handlePdfFileSelect(event)">
+  <!-- Hidden File Input for Single Question Direct Image Upload -->
+  <input type="file" id="singleImageInput" accept="image/*" class="hidden" onchange="handleSingleImageUpload(event)">
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur border-b border-slate-200 dark:border-slate-800 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
+      
+      <!-- Logo / Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-700 flex items-center justify-center text-white shadow">
+          <i class="fa-solid fa-file-pdf text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-sm sm:text-base font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+            Soalan Interaktif Fizik: TEKANAN
+            <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 font-semibold border border-emerald-300 dark:border-emerald-700">100% Rajah Asal</span>
+          </h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400">40 Soalan Dwibahasa MRSM — Tanpa Lukisan Semula (Original Scan)</p>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="flex items-center gap-2 sm:gap-2.5 flex-wrap justify-end">
+        <!-- Exam Timer -->
+        <div id="examTimerBadge" class="hidden items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-300 text-xs sm:text-sm font-mono font-bold">
+          <i class="fa-regular fa-clock animate-pulse"></i>
+          <span id="timerDisplay">60:00</span>
+        </div>
+
+        <!-- Upload PDF Button -->
+        <button onclick="document.getElementById('pdfFileInput').click()" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5">
+          <i class="fa-solid fa-file-arrow-up"></i>
+          <span class="hidden sm:inline">Muat Naik</span> TEKANAN.pdf
+        </button>
+
+        <!-- Export Standalone HTML Button -->
+        <button id="btnExportHtml" onclick="exportStandaloneHTML()" class="hidden px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition items-center gap-1.5" title="Muat turun fail HTML tunggal yang mengandungi semua imej asal terbenam">
+          <i class="fa-solid fa-download"></i>
+          <span class="hidden md:inline">Eksport HTML Lengkap</span>
+        </button>
+
+        <!-- Mode Toggle -->
+        <div class="flex items-center bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl text-xs font-semibold">
+          <button id="btnPracticeMode" onclick="setQuizMode('practice')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-sm transition">
+            Latihan
+          </button>
+          <button id="btnExamMode" onclick="setQuizMode('exam')" class="px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 transition">
+            Ujian
+          </button>
+        </div>
+
+        <!-- Formula Sheet Modal Toggle -->
+        <button onclick="toggleFormulaModal()" class="px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200" title="Senarai Rumus">
+          <i class="fa-solid fa-square-root-variable text-blue-600"></i>
+        </button>
+
+        <!-- Dark Mode Toggle -->
+        <button onclick="toggleDarkMode()" class="w-8 h-8 rounded-lg border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+          <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Banner for Loading Original TEKANAN.pdf Images -->
+  <div id="pdfExtractorBanner" class="bg-blue-50 dark:bg-blue-950/50 border-b border-blue-200 dark:border-blue-800/80 py-3 px-4 transition-all">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center gap-3 text-xs sm:text-sm text-blue-950 dark:text-blue-200">
+        <div class="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 font-bold">
+          <i class="fa-solid fa-camera-retro"></i>
+        </div>
+        <div>
+          <span class="font-bold block" id="bannerTitleText">Paparan Rajah Asal Tanpa Sebarang Lukisan Semula (100% Original PDF Scan)</span>
+          <span class="text-xs text-blue-700 dark:text-blue-300" id="bannerSubText">Pilih atau seret fail <b>TEKANAN.pdf</b> anda ke sini untuk mengekstrak automatik kesemua 35 rajah asal terus daripada dokumen PDF tanpa diubah suai.</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button onclick="document.getElementById('pdfFileInput').click()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow transition whitespace-nowrap">
+          <i class="fa-solid fa-folder-open mr-1.5"></i> Pilih Fail TEKANAN.pdf
+        </button>
+      </div>
+    </div>
+    <!-- Extraction Progress Bar -->
+    <div id="extractionProgressWrap" class="hidden max-w-7xl mx-auto mt-2.5">
+      <div class="w-full bg-blue-200 dark:bg-blue-900 h-2 rounded-full overflow-hidden">
+        <div id="extractionProgressBar" class="bg-blue-600 h-full transition-all duration-150" style="width: 0%"></div>
+      </div>
+      <p id="extractionStatusText" class="text-[11px] font-mono text-blue-800 dark:text-blue-300 mt-1 text-center">Mengekstrak rajah asal...</p>
+    </div>
+  </div>
+
+  <!-- Student Identity Bar (Nama, No Maktab, MRSM as on Page 1 of TEKANAN.pdf) -->
+  <div class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 py-2.5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div class="flex flex-wrap items-center gap-3 flex-1">
+        <div class="flex items-center gap-1.5">
+          <label class="font-bold text-slate-500 uppercase">NAMA:</label>
+          <input type="text" id="studentName" oninput="saveStudentInfo()" placeholder="Nama Pelajar..." class="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-semibold focus:outline-none focus:border-blue-500 w-40 sm:w-52">
+        </div>
+        <div class="flex items-center gap-1.5">
+          <label class="font-bold text-slate-500 uppercase">NO. MAKTAB:</label>
+          <input type="text" id="studentID" oninput="saveStudentInfo()" placeholder="Contoh: 24001" class="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-mono font-semibold focus:outline-none focus:border-blue-500 w-28 sm:w-32">
+        </div>
+        <div class="flex items-center gap-1.5">
+          <label class="font-bold text-slate-500 uppercase">MRSM:</label>
+          <input type="text" id="studentMRSM" oninput="saveStudentInfo()" placeholder="Cawangan MRSM..." class="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-semibold focus:outline-none focus:border-blue-500 w-32 sm:w-40">
+        </div>
+      </div>
+
+      <!-- Topic Filter Pills -->
+      <div class="flex items-center gap-1.5 overflow-x-auto">
+        <button onclick="filterByTopic('ALL')" id="tabTopicALL" class="topic-tab-btn px-2.5 py-1 rounded-full bg-slate-900 text-white dark:bg-blue-600 font-semibold whitespace-nowrap">Semua (40)</button>
+        <button onclick="filterByTopic('Tekanan Cecair')" id="tabTopic1" class="topic-tab-btn px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 whitespace-nowrap">Cecair</button>
+        <button onclick="filterByTopic('Tekanan Gas & Atmosfera')" id="tabTopic2" class="topic-tab-btn px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 whitespace-nowrap">Gas & Atm</button>
+        <button onclick="filterByTopic('Prinsip Pascal')" id="tabTopic3" class="topic-tab-btn px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 whitespace-nowrap">Pascal</button>
+        <button onclick="filterByTopic('Prinsip Archimedes')" id="tabTopic4" class="topic-tab-btn px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 whitespace-nowrap">Archimedes</button>
+        <button onclick="filterByTopic('Prinsip Bernoulli')" id="tabTopic5" class="topic-tab-btn px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 whitespace-nowrap">Bernoulli</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex-1 w-full flex flex-col lg:flex-row gap-5">
+
+    <!-- Left Column: Question Card -->
+    <div class="flex-1 flex flex-col gap-4">
+
+      <!-- Question Status Header -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <span class="w-9 h-9 rounded-xl bg-slate-900 dark:bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow" id="badgeCurrentQNum">1</span>
+          <div>
+            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block" id="currentRajahNumber">HALAMAN 1 • RAJAH 20</span>
+            <span class="text-sm font-bold text-slate-800 dark:text-slate-100" id="currentCategoryTitle">Tekanan Cecair</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+          <!-- Bookmark Button -->
+          <button onclick="toggleBookmarkCurrent()" id="btnBookmark" class="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-amber-500 transition text-xs flex items-center gap-1.5 font-semibold">
+            <i class="fa-regular fa-bookmark"></i> Simpan
+          </button>
+          <!-- Progress Indicator -->
+          <div class="flex items-center gap-2">
+            <div class="w-24 sm:w-32 bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+              <div id="progressBar" class="bg-blue-600 h-full rounded-full transition-all duration-300" style="width: 2.5%;"></div>
+            </div>
+            <span id="progressText" class="text-xs font-mono font-bold text-slate-500 dark:text-slate-400">1/40</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Question Body -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
+        
+        <div class="p-5 sm:p-7 flex flex-col gap-5">
+          
+          <!-- Original Diagram Container (Strictly Original Image Only - NO Redrawn SVG) -->
+          <div id="diagramWrapper" class="w-full flex flex-col items-center justify-center p-4 rounded-xl original-img-frame relative">
+            
+            <!-- Toolbar on top-right of diagram box -->
+            <div class="w-full flex items-center justify-between mb-2 pb-2 border-b border-slate-200 text-[11px] text-slate-500">
+              <span id="diagramSourceLabel" class="font-mono font-semibold text-slate-600">
+                <i class="fa-regular fa-image mr-1"></i> Rajah Asal TEKANAN.pdf
+              </span>
+              <div class="flex items-center gap-1.5">
+                <button id="btnOpenCropModal" onclick="openCropAdjusterModal()" class="hidden px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition" title="Laraskan kawasan keratan terus daripada halaman PDF asal">
+                  <i class="fa-solid fa-crop-simple mr-1"></i> Laras Keratan PDF Asal
+                </button>
+                <button id="btnToggleFullPage" onclick="toggleFullPdfPageView()" class="hidden px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition" title="Papar halaman penuh PDF asal">
+                  <i class="fa-regular fa-file-lines mr-1"></i> Halaman Penuh
+                </button>
+                <button onclick="triggerDirectImageUpload()" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition" title="Muat naik atau tampal (Ctrl+V) imej asal bagi soalan ini">
+                  <i class="fa-solid fa-upload mr-1"></i> Ganti Imej
+                </button>
+              </div>
+            </div>
+
+            <!-- Actual Original Image Element -->
+            <div id="diagramContainer" class="w-full flex flex-col justify-center items-center min-h-[160px]">
+              <img id="originalQuestionImg" src="" alt="Rajah Asal Soalan" class="hidden max-w-full max-h-[380px] object-contain mx-auto select-none" />
+              
+              <!-- Shown only before TEKANAN.pdf is loaded -->
+              <div id="unloadedDiagramPlaceholder" class="flex flex-col items-center justify-center text-center p-6 max-w-md mx-auto gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center text-xl border border-slate-300">
+                  <i class="fa-regular fa-file-pdf"></i>
+                </div>
+                <div class="space-y-1">
+                  <p class="text-xs sm:text-sm font-bold text-slate-800" id="placeholderTitle">Rajah Asal daripada TEKANAN.pdf</p>
+                  <p class="text-xs text-slate-500">Tiada lukisan semula dilakukan. Klik butang di bawah untuk memuat naik fail <b>TEKANAN.pdf</b> dan memaparkan imej asal 100% bagi kesemua 40 soalan.</p>
+                </div>
+                <div class="flex flex-wrap items-center justify-center gap-2 pt-1">
+                  <button onclick="document.getElementById('pdfFileInput').click()" class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm transition">
+                    <i class="fa-solid fa-file-pdf mr-1.5"></i> Muat Naik TEKANAN.pdf
+                  </button>
+                  <button onclick="triggerDirectImageUpload()" class="px-3 py-1.5 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-semibold transition">
+                    <i class="fa-solid fa-paste mr-1"></i> Pilih / Tampal Imej (Ctrl+V)
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Question Text BM & BI -->
+          <div class="space-y-2.5">
+            <div id="qTextBM" class="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-relaxed">
+              ...
+            </div>
+            <div id="qTextBI" class="text-xs sm:text-sm italic text-slate-600 dark:text-slate-400 leading-relaxed border-l-2 border-blue-400 dark:border-blue-600 pl-3">
+              ...
+            </div>
+          </div>
+
+          <!-- Options List (A, B, C, D) -->
+          <div id="optionsList" class="flex flex-col gap-2.5 pt-1">
+            <!-- Dynamic Option Buttons -->
+          </div>
+
+          <!-- Detailed Explanation Box -->
+          <div id="explanationContainer" class="hidden flex-col gap-3 p-4 sm:p-5 rounded-xl border transition-all">
+            <div class="flex items-center justify-between">
+              <span id="explanationBadge" class="px-2.5 py-1 text-xs font-bold rounded-md flex items-center gap-1.5"></span>
+              <span class="text-xs font-mono text-slate-400">Skema Jawapan & Jalan Pengiraan</span>
+            </div>
+            <div id="explanationContent" class="text-xs sm:text-sm text-slate-700 dark:text-slate-200 space-y-2 leading-relaxed"></div>
+          </div>
+
+        </div>
+
+        <!-- Footer Navigation Bar -->
+        <div class="bg-slate-50 dark:bg-slate-900/80 px-5 sm:px-7 py-3.5 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <button id="btnPrev" onclick="navigateQuestion(-1)" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition disabled:opacity-40">
+              <i class="fa-solid fa-arrow-left mr-1.5"></i> Sebelum
+            </button>
+            <button id="btnNext" onclick="navigateQuestion(1)" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition disabled:opacity-40">
+              Seterusnya <i class="fa-solid fa-arrow-right ml-1.5"></i>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button id="btnCheckAnswer" onclick="checkCurrentAnswer()" class="px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition">
+              <i class="fa-solid fa-check-double mr-1.5"></i> Semak Jawapan
+            </button>
+            <button id="btnFinishExam" onclick="confirmSubmitExam()" class="hidden px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition">
+              <i class="fa-solid fa-file-export mr-1.5"></i> Hantar Ujian
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Right Column: Question Palette & Topic Progress -->
+    <div class="w-full lg:w-80 flex flex-col gap-4">
+
+      <!-- Question Navigator Palette -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-table-cells text-blue-600"></i> Navigasi Soalan (1 - 40)
+          </h3>
+          <span id="filteredIndicator" class="text-[11px] text-slate-400 font-medium">Semua (40)</span>
+        </div>
+
+        <div class="grid grid-cols-5 sm:grid-cols-8 lg:grid-cols-5 gap-2 max-h-72 overflow-y-auto pr-1" id="paletteGrid">
+          <!-- 40 buttons -->
+        </div>
+
+        <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
+          <button onclick="openResetConfirmModal()" class="text-rose-500 hover:text-rose-600 font-semibold">
+            <i class="fa-solid fa-rotate-left mr-1"></i> Reset Jawapan
+          </button>
+          <span class="text-slate-400 font-mono text-[11px]" id="statSummaryCompact">0/40 Dijawab</span>
+        </div>
+      </div>
+
+      <!-- Subtopic Breakdown -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-3 text-xs">
+        <h3 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="fa-solid fa-layer-group text-emerald-500"></i> Pecahan Topik Bab Tekanan
+        </h3>
+        <div class="space-y-2" id="topicProgressBarContainer"></div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Interactive Original PDF Crop Adjuster Modal (Strictly crops original PDF page pixels without redrawing) -->
+  <div id="cropAdjusterModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 max-w-3xl w-full rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col gap-4 max-h-[92vh] overflow-hidden">
+      <div class="flex items-center justify-between border-b pb-3 dark:border-slate-800">
+        <div>
+          <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i class="fa-solid fa-crop-simple text-blue-600"></i> Pilih Kawasan Keratan Rajah Asal PDF
+          </h3>
+          <p class="text-xs text-slate-500">Seret tetikus pada halaman PDF asal di bawah untuk menetapkan keratan imej asal bagi soalan ini.</p>
+        </div>
+        <button onclick="closeCropAdjusterModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="flex items-center justify-between gap-2 text-xs bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-xl">
+        <div class="flex items-center gap-2">
+          <span class="font-bold">Halaman PDF:</span>
+          <button onclick="changeCropModalPage(-1)" class="px-2 py-1 rounded bg-white dark:bg-slate-700 border dark:border-slate-600 font-bold">-</button>
+          <span id="cropModalPageNum" class="font-mono font-bold px-2">1 / 24</span>
+          <button onclick="changeCropModalPage(1)" class="px-2 py-1 rounded bg-white dark:bg-slate-700 border dark:border-slate-600 font-bold">+</button>
+        </div>
+        <span class="text-slate-500 italic">Klik & seret kotak merah pada rajah asal</span>
+      </div>
+
+      <!-- Original PDF Page Canvas Viewer for Cropping -->
+      <div class="flex-1 overflow-auto bg-slate-200 dark:bg-slate-950 rounded-xl p-3 flex justify-center items-start relative">
+        <div class="relative inline-block">
+          <canvas id="cropModalPdfCanvas" class="shadow-lg bg-white max-w-full h-auto"></canvas>
+          <div id="cropSelectionBox" class="hidden absolute border-2 border-red-600 bg-red-500/15 pointer-events-none"></div>
+          <div id="cropTouchOverlay" class="absolute inset-0 cursor-crosshair"></div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t dark:border-slate-800">
+        <button onclick="closeCropAdjusterModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+          Batal
+        </button>
+        <button onclick="applyCustomPdfCrop()" class="px-5 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white shadow">
+          <i class="fa-solid fa-check mr-1"></i> Gunakan Keratan Asal Ini
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Confirmation / Notification Modal (No native alert/confirm) -->
+  <div id="customDialogModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 max-w-md w-full rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col gap-4">
+      <div class="flex items-center gap-3">
+        <div id="dialogIconBox" class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-lg shrink-0">
+          <i class="fa-solid fa-circle-info"></i>
+        </div>
+        <h3 id="dialogTitle" class="text-base font-bold text-slate-900 dark:text-white">Makluman</h3>
+      </div>
+      <p id="dialogMessage" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed"></p>
+      <div class="flex items-center justify-end gap-2 pt-2">
+        <button id="dialogBtnCancel" onclick="closeCustomDialog()" class="hidden px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+          Batal
+        </button>
+        <button id="dialogBtnConfirm" onclick="closeCustomDialog()" class="px-5 py-2 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formula Sheet Modal -->
+  <div id="formulaModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 max-w-lg w-full rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col gap-4 max-h-[85vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b pb-3 dark:border-slate-800">
+        <h3 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+          <i class="fa-solid fa-book-bookmark text-blue-600"></i> Senarai Rumus Fizik SPM (Tekanan)
+        </h3>
+        <button onclick="toggleFormulaModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <div class="space-y-3 text-xs leading-relaxed">
+        <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+          <div class="font-bold text-slate-800 dark:text-slate-200 mb-1">1. Tekanan (Pressure)</div>
+          <p class="font-mono text-blue-600 dark:text-blue-400 font-bold">P = F / A</p>
+          <p class="text-slate-500 dark:text-slate-400 text-[11px]">F = Daya (N), A = Luas permukaan (m²). Unit: Pascal (Pa) / N m⁻²</p>
+        </div>
+        <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+          <div class="font-bold text-slate-800 dark:text-slate-200 mb-1">2. Tekanan Cecair (Liquid Pressure)</div>
+          <p class="font-mono text-blue-600 dark:text-blue-400 font-bold">P = hρg &nbsp;|&nbsp; P_mutlak = P_atm + hρg</p>
+          <p class="text-slate-500 dark:text-slate-400 text-[11px]">h = kedalaman (m), ρ = ketumpatan cecair (kg m⁻³), g = 9.81 m s⁻²</p>
+        </div>
+        <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+          <div class="font-bold text-slate-800 dark:text-slate-200 mb-1">3. Prinsip Pascal (Sistem Hidraulik)</div>
+          <p class="font-mono text-blue-600 dark:text-blue-400 font-bold">F₁ / A₁ = F₂ / A₂ &nbsp;|&nbsp; A₁ d₁ = A₂ d₂</p>
+        </div>
+        <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+          <div class="font-bold text-slate-800 dark:text-slate-200 mb-1">4. Prinsip Archimedes (Daya Apungan)</div>
+          <p class="font-mono text-blue-600 dark:text-blue-400 font-bold">F_B = ρ V g = Berat bendalir tersesar</p>
+          <p class="text-slate-500 dark:text-slate-400 text-[11px]">Keadaan terapung pegun: Berat objek (W) = Daya apungan (F_B)</p>
+        </div>
+        <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+          <div class="font-bold text-slate-800 dark:text-slate-200 mb-1">5. Prinsip Bernoulli</div>
+          <p class="font-mono text-blue-600 dark:text-blue-400 font-bold">Halaju bendalir tinggi (v ↑) ➔ Tekanan bendalir rendah (P ↓)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Modal -->
+  <div id="resultsModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 max-w-xl w-full rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col gap-6 max-h-[90vh] overflow-y-auto">
+      <div class="text-center space-y-1">
+        <h2 class="text-2xl font-black text-slate-900 dark:text-white">Slip Keputusan Kuiz Fizik</h2>
+        <p id="resultStudentInfo" class="text-xs font-semibold text-blue-600 dark:text-blue-400"></p>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 text-center p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+        <div>
+          <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold block">Skor</span>
+          <span id="finalScoreVal" class="text-2xl sm:text-3xl font-extrabold text-blue-600 font-mono">0/40</span>
+        </div>
+        <div>
+          <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold block">Peratus</span>
+          <span id="finalPercentage" class="text-2xl sm:text-3xl font-extrabold text-emerald-600 font-mono">0%</span>
+        </div>
+        <div>
+          <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold block">Gred</span>
+          <span id="finalGrade" class="text-2xl sm:text-3xl font-extrabold text-amber-500 font-mono">-</span>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Analisis Mengikut Subtopik</h4>
+        <div id="subtopicResults" class="space-y-2 text-xs"></div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-3 border-t dark:border-slate-800">
+        <button onclick="closeResultsModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
+          Semak Jawapan
+        </button>
+        <button onclick="resetAndRestartExam()" class="px-5 py-2 rounded-xl text-xs font-semibold bg-blue-600 text-white">
+          Cuba Semula
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Configure PDF.js worker
+    if (window.pdfjsLib) {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    /* =========================================================================
+       PRE-EMBEDDED ORIGINAL IMAGES STORE (Populated when exported or extracted)
+       ========================================================================= */
+    window.EMBEDDED_ORIGINAL_IMAGES = window.EMBEDDED_ORIGINAL_IMAGES || {};
+
+    /* =========================================================================
+       40 QUESTIONS VERBATIM FROM TEKANAN.pdf WITH EXACT PDF PAGE & CROP BOXES
+       crop: { page: 1..24, x: 0..1, y: 0..1, w: 0..1, h: 0..1 }
+       All coordinates are normalized (0.0 to 1.0) relative to the original PDF page
+       ========================================================================= */
+    const questions = [
+      {
+        id: 1,
+        rajahNo: "Halaman 1 • Rajah 20 / Diagram 20",
+        topic: "Tekanan Cecair",
+        hasDiagram: true,
+        crop: { page: 1, x: 0.42, y: 0.14, w: 0.54, h: 0.36 },
+        questionBM: "Rajah 20 menunjukkan sebuah tangki air yang diletakkan di ruang antara siling dan bumbung. Tangki air itu disambungkan dengan pili air dalam sebuah rumah.<br><br>Diberi:<br>• ketumpatan air, ρ = 1000 kg m⁻³<br>• pecutan graviti, g = 9.81 m s⁻²<br><br>Berapakah tekanan air pada pili air?",
+        questionBI: "Diagram 20 shows a water tank placed in the space between the ceiling and the roof. The water tank is connected to a water tap in a house.<br>Given: the density of water, ρ = 1000 kg m⁻³, the gravitational acceleration, g = 9.81 m s⁻².<br>What is the water pressure at the water tap?",
+        options: [
+          { key: "A", bm: "29430 Pa", bi: "" },
+          { key: "B", bm: "39420 Pa", bi: "" },
+          { key: "C", bm: "49050 Pa", bi: "" },
+          { key: "D", bm: "58860 Pa", bi: "" }
+        ],
+        answer: "C",
+        explanation: "<b>Kaedah Penyelesaian:</b><br>Kedalaman turus air pada pili air, <i>h</i> = 6 m − 1 m = 5 m.<br>Tekanan air, <b>P = hρg</b> = 5 × 1000 × 9.81 = <b>49 050 Pa</b>."
+      },
+      {
+        id: 2,
+        rajahNo: "Halaman 1 • Soalan 2",
+        topic: "Tekanan Gas & Atmosfera",
+        hasDiagram: false,
+        crop: null,
+        questionBM: "Apakah maksud tekanan atmosfera?",
+        questionBI: "What is meant by atmospheric pressure?",
+        options: [
+          { key: "A", bm: "Daya per unit luas", bi: "Force per unit area" },
+          { key: "B", bm: "Perbezaan tekanan antara altitud tinggi dan rendah", bi: "Pressure difference between high and low altitude" },
+          { key: "C", bm: "Tekanan yang disebabkan oleh perlanggaran antara zarah-zarah gas dan dinding", bi: "The pressure caused by the collision between the gas particles and the walls" },
+          { key: "D", bm: "Tekanan yang disebabkan oleh berat lapisan udara yang bertindak ke atas permukaan bumi", bi: "The pressure caused by the weight of the air layer acting on the Earth's surface" }
+        ],
+        answer: "D",
+        explanation: "<b>Penjelasan:</b><br>Tekanan atmosfera ialah tekanan yang disebabkan oleh <b>berat lapisan udara yang bertindak ke atas permukaan bumi</b>."
+      },
+      {
+        id: 3,
+        rajahNo: "Halaman 2 • Rajah 21 / Diagram 21",
+        topic: "Tekanan Gas & Atmosfera",
+        hasDiagram: true,
+        crop: { page: 2, x: 0.14, y: 0.08, w: 0.76, h: 0.31 },
+        questionBM: "Rajah 21 menunjukkan sebuah manometer yang disambungkan kepada bekalan gas.<br>Apakah yang akan berlaku kepada ketinggian, <i>h</i> antara aras cecair di dalam kedua-dua lengan manometer jika air digantikan dengan merkuri?",
+        questionBI: "Diagram 21 shows a manometer connected to a gas supply.<br>What will happen to the height, h between the liquid levels in both arms of the manometer if water is replaced by mercury?",
+        options: [
+          { key: "A", bm: "Sifar", bi: "Zero" },
+          { key: "B", bm: "Berkurang", bi: "Decreases" },
+          { key: "C", bm: "Bertambah", bi: "Increases" },
+          { key: "D", bm: "Tidak berubah", bi: "Unchanged" }
+        ],
+        answer: "B",
+        explanation: "<b>Penjelasan:</b><br>Daripada hubungan ΔP = hρg, ketinggian turus cecair <i>h</i> berkadar songsang dengan ketumpatan cecair ρ. Oleh sebab merkuri jauh lebih tumpat daripada air, ketinggian <i>h</i> akan <b>berkurang (decreases)</b>."
+      },
+      {
+        id: 4,
+        rajahNo: "Halaman 2–3 • Rajah 22 / Diagram 22",
+        topic: "Prinsip Archimedes",
+        hasDiagram: true,
+        crop: { page: 2, x: 0.12, y: 0.68, w: 0.76, h: 0.27 },
+        questionBM: "Rajah 22 menunjukkan sebiji epal terapung di permukaan air.<br>Mengapakah epal itu terapung?",
+        questionBI: "Diagram 22 shows an apple floats at the surface of water.<br>Why does the apple float?",
+        options: [
+          { key: "A", bm: "Berat epal = Daya apungan", bi: "Weight of apple = Buoyant force" },
+          { key: "B", bm: "Daya paduan bertindak ke arah atas", bi: "Resultant force acts upward" },
+          { key: "C", bm: "Daya apungan lebih besar daripada berat epal", bi: "The buoyant force is greater than the weight of apple" },
+          { key: "D", bm: "Isipadu epal = isipadu air yang disesarkan", bi: "Volume of apple = volume of water displaced" }
+        ],
+        answer: "A",
+        explanation: "<b>Penjelasan:</b><br>Apabila objek terapung pegun di permukaan air, daya-daya berada dalam keseimbangan: <b>Berat epal = Daya apungan</b> (daya paduan = 0)."
+      },
+      {
+        id: 5,
+        rajahNo: "Halaman 3 • Soalan 5",
+        topic: "Prinsip Bernoulli",
+        hasDiagram: false,
+        crop: null,
+        questionBM: "Sebuah kereta lumba dilengkapi dengan spoiler berbentuk aerofoil.<br>Prinsip fizik manakah yang menerangkan fungsi spoiler tersebut?",
+        questionBI: "A racing car is equipped with an aerofoil-shaped spoiler.<br>Which physics principle explains the spoiler's function?",
+        options: [
+          { key: "A", bm: "Prinsip Pascal", bi: "Pascal's principle" },
+          { key: "B", bm: "Prinsip Bernoulli", bi: "Bernoulli's principle" },
+          { key: "C", bm: "Prinsip Archimedes", bi: "Archimedes' principle" },
+          { key: "D", bm: "Prinsip Keabadian Momentum", bi: "Principle of Conservation of Momentum" }
+        ],
+        answer: "B",
+        explanation: "<b>Penjelasan:</b><br>Spoiler berbentuk aerofoil terbalik berfungsi menggunakan <b>Prinsip Bernoulli</b> untuk menghasilkan perbezaan tekanan udara yang menjana daya ke bawah (downforce)."
+      },
+      {
+        id: 6,
+        rajahNo: "Halaman 3–4 • Rajah 16 / Diagram 16",
+        topic: "Tekanan Gas & Atmosfera",
+        hasDiagram: true,
+        crop: { page: 3, x: 0.14, y: 0.56, w: 0.78, h: 0.39 },
+        questionBM: "Rajah 16 menunjukkan keratan rentas sebuah tingkap sebuah kapal terbang yang sedang terbang pada altitud yang tinggi.<br>Antara penyataan berikut, yang manakah betul?",
+        questionBI: "Diagram 16 shows a cross-section of a window of an airplane flying at high altitude.<br>Which of the following statements is correct?",
+        options: [
+          { key: "A", bm: "Tekanan udara di dalam kabin hampir sama dengan tekanan pada aras laut.", bi: "The air pressure in the cabin is almost the same as the pressure at sea level." },
+          { key: "B", bm: "Tekanan atmosfera di luar kabin = Tekanan udara di dalam kabin.", bi: "The atmospheric pressure outside the cabin = The air pressure inside the cabin." },
+          { key: "C", bm: "Tekanan atmosfera di luar kabin bertambah apabila altitud bertambah.", bi: "The atmospheric pressure outside the cabin increases as the altitude increases." },
+          { key: "D", bm: "Tekanan udara di dalam kabin berkurang apabila altitud berkurang.", bi: "The air pressure in the cabin decreases as the altitude decreases." }
+        ],
+        answer: "A",
+        explanation: "<b>Penjelasan:</b><br>Kabin kapal terbang dimampatkan supaya <b>tekanan udara di dalam kabin hampir sama dengan tekanan atmosfera pada aras laut</b> demi keselesaan dan keselamatan penumpang."
+      },
+      {
+        id: 7,
+        rajahNo: "Halaman 4 • Soalan 7",
+        topic: "Tekanan Gas & Atmosfera",
+        hasDiagram: false,
+        crop: null,
+        questionBM: "Tekanan gas dalam bekas adalah disebabkan oleh perlanggaran molekul-molekul gas dengan dinding bekas. Perubahan manakah yang akan mengurangkan tekanan gas?",
+        questionBI: "The gas pressure in a container is due to the collision of the gas molecules with the container's wall. Which change will decrease the gas pressure?",
+        options: [
+          { key: "A", bm: "Meningkatkan suhu gas.", bi: "Increase the gas temperature." },
+          { key: "B", bm: "Meningkatkan jisim bekas.", bi: "Increase the mass of container." },
+          { key: "C", bm: "Mengurangkan isi padu bekas.", bi: "Decrease the volume of container." },
+          { key: "D", bm: "Mengurangkan halaju purata molekul-molekul gas.", bi: "Decrease the average velocity of gas molecules." }
+        ],
+        answer: "D",
+        explanation: "<b>Penjelasan:</b><br><b>Mengurangkan halaju purata molekul-molekul gas</b> akan mengurangkan kadar perlanggaran dan kadar perubahan momentum molekul pada dinding bekas, seterusnya mengurangkan tekanan gas."
+      },
+      {
+        id: 8,
+        rajahNo: "Halaman 4–5 • Rajah 17 / Diagram 17",
+        topic: "Prinsip Pascal",
+        hasDiagram: true,
+        crop: { page: 4, x: 0.16, y: 0.56, w: 0.72, h: 0.39 },
+        questionBM: "Rajah 17 menunjukkan sebuah kerusi tukang gunting yang terletak di sebuah kedai gunting rambut. Kerusi tersebut menggunakan sistem hidraulik.<br>Luas keratan rentas omboh besar dan omboh kecil masing-masing adalah 90 cm² dan 15 cm². Jisim kerusi ialah 70 kg.<br>Hitungkan daya yang perlu dikenakan kepada omboh kecil untuk mengangkat seorang lelaki berjisim 75 kg.",
+        questionBI: "Diagram 17 shows a barber's chair located in a barber shop. The chair uses a hydraulic system.<br>The cross sectional area of the big piston and the small piston are 90 cm² and 15 cm² respectively. The mass of the chair is 70 kg.<br>Calculate the force exerted on the small piston to lift up a man of mass 75 kg.",
+        options: [
+          { key: "A", bm: "122.63 N", bi: "" },
+          { key: "B", bm: "237.08 N", bi: "" },
+          { key: "C", bm: "241.67 N", bi: "" },
+          { key: "D", bm: "853.47 N", bi: "" }
+        ],
+        answer: "B",
+        explanation: "<b>Kaedah Penyelesaian:</b><br>Jumlah jisim beban pada omboh besar = 70 kg + 75 kg = 145 kg.<br>Berat beban, F₂ = mg = 145 × 9.81 = 1422.45 N.<br>Ikut Prinsip Pascal: <b>F₁ / A₁ = F₂ / A₂</b><br>F₁ = (15 / 90) × 1422.45 = <b>237.08 N</b>."
+      },
+      {
+        id: 9,
+        rajahNo: "Halaman 5 • Soalan 9",
+        topic: "Prinsip Archimedes",
+        hasDiagram: false,
+        crop: null,
+        questionBM: "Antara penyataan berikut, manakah yang berkaitan dengan prinsip Archimedes?",
+        questionBI: "Which of the following statements is related to Archimedes' principle?",
+        options: [
+          { key: "A", bm: "Daya tujah ke atas = jisim bendalir disesarkan", bi: "Upthrust = mass of fluid displaced" },
+          { key: "B", bm: "Daya tujah ke atas = berat bendalir disesarkan", bi: "Upthrust = weight of fluid displaced" },
+          { key: "C", bm: "Daya tujah ke atas = isipadu bendalir disesarkan", bi: "Upthrust = volume of fluid displaced" },
+          { key: "D", bm: "Daya tujah ke atas = ketumpatan bendalir disesarkan", bi: "Upthrust = density of fluid displaced" }
+        ],
+        answer: "B",
+        explanation: "<b>Penjelasan:</b><br>Prinsip Archimedes menyatakan bahawa <b>daya tujah ke atas (daya apungan) = berat bendalir yang disesarkan</b>."
+      },
+      {
+        id: 10,
+        rajahNo: "Halaman 5–6 • Rajah 18 / Diagram 18",
+        topic: "Prinsip Bernoulli",
+        hasDiagram: true,
+        crop: { page: 5, x: 0.14, y: 0.50, w: 0.76, h: 0.46 },
+        questionBM: "Rajah 18 menunjukkan bumbung sebuah rumah terangkat semasa ribut taufan.<br>Antara penyataan berikut yang manakah betul untuk menerangkan fenomena itu?",
+        questionBI: "Diagram 18 shows the roof of a house being lifted during a storm.<br>Which of the following statement is correct to explain the phenomenon?",
+        options: [
+          { key: "A", bm: "Laju udara di X lebih rendah menyebabkan tekanan udara lebih rendah.", bi: "Speed of air at X is lower causing lower air pressure." },
+          { key: "B", bm: "Laju udara di X lebih tinggi menyebabkan tekanan udara lebih tinggi.", bi: "Speed of air at X is higher causing higher air pressure." },
+          { key: "C", bm: "Laju udara di W lebih tinggi menyebabkan tekanan udara lebih rendah.", bi: "Speed of air at W is higher causing lower air pressure." },
+          { key: "D", bm: "Laju udara di W lebih rendah menyebabkan tekanan udara lebih rendah.", bi: "Speed of air at W is lower causing lower air pressure." }
+        ],
+        answer: "C",
+        explanation: "<b>Penjelasan:</b><br>Mengikut Prinsip Bernoulli, <b>laju udara yang tinggi di bahagian atas bumbung (W) menyebabkan tekanan udara yang lebih rendah</b> berbanding tekanan udara di dalam rumah (X), lalu menghasilkan daya angkat."
+      },
+      {
+        id: 11,
+        rajahNo: "Halaman 6 • Rajah 15 / Diagram 15",
+        topic: "Tekanan Cecair",
+        hasDiagram: true,
+        crop: { page: 6, x: 0.14, y: 0.36, w: 0.78, h: 0.38 },
+        questionBM: "Rajah 15 menunjukkan tiga bekas serupa disambung kepada tiga biji belon kempis yang serupa P, Q dan R oleh satu tiub berklip. Bekas itu diisi dengan air pada ketinggian yang berbeza.<br>Apabila klip dibuka, belon yang manakah mengembang paling pantas?",
+        questionBI: "Diagram 15 shows three similar containers connected with three similar flat balloons P, Q and R by a tube with a clip. The containers were filled with water at different heights.<br>When the clip opens, which balloon expands faster?",
+        options: [
+          { key: "A", bm: "P", bi: "" },
+          { key: "B", bm: "Q", bi: "" },
+          { key: "C", bm: "R", bi: "" },
+          { key: "D", bm: "P, Q dan R mengembang serentak.", bi: "P, Q and R expand simultaneously." }
+        ],
+        answer: "B",
+        explanation: "<b>Penjelasan:</b><br>Bekas bagi belon <b>Q</b> mempunyai aras kedalaman air yang paling tinggi, menghasilkan tekanan air paling besar (P = hρg) untuk mengembangkan belon Q paling pantas."
+      },
+      {
+        id: 12,
+        rajahNo: "Halaman 7 • Rajah 19 / Diagram 19",
+        topic: "Tekanan Cecair",
+        hasDiagram: true,
+        crop: { page: 7, x: 0.35, y: 0.10, w: 0.45, h: 0.28 },
+        questionBM: "Rajah 18 menunjukkan sebatang tiub-U yang diisi dengan cecair X dan cecair Y. Ketumpatan cecair Y ialah 1 300 kg m⁻³.<br>(Ketinggian turus cecair X = 13.0 cm, ketinggian turus cecair Y = 21.5 cm).<br>Berapakah ketumpatan cecair X?",
+        questionBI: "Diagram 18 shows a U-tube filled with liquid X and liquid Y. The density of liquid Y is 1 300 kg m⁻³.<br>What is the density of liquid X?",
+        options: [
+          { key: "A", bm: "786 kg m⁻³", bi: "" },
+          { key: "B", bm: "2 150 kg m⁻³", bi: "" },
+          { key: "C", bm: "16 900 kg m⁻³", bi: "" },
+          { key: "D", bm: "27 950 kg m⁻³", bi: "" }
+        ],
+        answer: "B",
+        explanation: "<b>Kaedah Penyelesaian:</b><br>Pada aras keseimbangan: <b>h_X ρ_X g = h_Y ρ_Y g</b><br>13.0 × ρ_X = 21.5 × 1300<br>ρ_X = (21.5 × 1300) / 13.0 = <b>2 150 kg m⁻³</b>."
+      },
+      {
+        id: 13,
+        rajahNo: "Halaman 7 • Rajah 20 / Diagram 20",
+        topic: "Tekanan Gas & Atmosfera",
+        hasDiagram: true,
+        crop: { page: 7, x: 0.18, y: 0.55, w: 0.68, h: 0.25 },
+        questionBM: "Rajah 20 menunjukkan sebuah pembersih hampagas dan penyedut getah untuk mengangkat kepingan kaca.<br>Apakah konsep yang diaplikasikan oleh kedua-dua alat ini?",
+        questionBI: "Diagram 20 shows a vacuum cleaner and a rubber sucker to pick up a glass sheet.<br>What concepts are applied by these two tools?",
+        options: [
+          { key: "A", bm: "Daya", bi: "Force" },
+          { key: "B", bm: "Tekanan gas", bi: "Gas pressure" },
+          { key: "C", bm: "Tekanan atmosfera", bi: "Atmospheric pressure" },
+          { key: "D", bm: "Tekanan dalam cecair", bi: "Pressure in liquid" }
+        ],
+        answer: "C",
+        explanation: "<b>Penjelasan:</b><br>Kedua-dua pembersih hampagas dan penyedut getah berfungsi menggunakan aplikasi <b>Tekanan atmosfera (Atmospheric pressure)</b>."
+      },
+      {
+        id: 14,
+        rajahNo: "Halaman 8 • Rajah 21 / Diagram 21",
+        topic: "Tekanan Gas & Atmosfera",
+        hasDiagram: true,
+        crop: { page: 8, x: 0.16, y: 0.08, w: 0.72, h: 0.29 },
+        questionBM: "Rajah 21 menunjukkan sebuah manometer disambungkan kepada satu tangki gas oksigen yang kemudian dibuka injapnya.<br>Berdasarkan pada aras cecair Y, pernyataan manakah adalah benar?",
+        questionBI: "Diagram 21 shows a manometer connected to an oxygen gas tank where the valve is turned on.<br>Based on the level of the liquid Y, which of the following statements is true?",
+        options: [
+          { key: "A", bm: "Tekanan gas oksigen > tekanan atmosfera", bi: "Pressure of oxygen gas > atmospheric pressure" },
+          { key: "B", bm: "Tekanan gas oksigen < tekanan atmosfera", bi: "Pressure of oxygen gas < atmospheric pressure" },
+          { key: "C", bm: "Tekanan gas oksigen = tekanan atmosfera", bi: "Pressure of oxygen gas = atmospheric pressure" }
+        ],
+        answer: "A",
+        explanation: "<b>Penjelasan:</b><br>Aras cecair Y di sebelah tangki gas ditolak ke bawah manakala lengan yang terbuka ke atmosfera naik setinggi <i>h</i>. Maka <b>Tekanan gas oksigen > tekanan atmosfera</b>."
+      },
+      {
+        id: 15,
+        rajahNo: "Halaman 8–9 • Rajah 22 / Diagram 22",
+        topic: "Prinsip Bernoulli",
+        hasDiagram: true,
+        crop: { page: 8, x: 0.14, y: 0.62, w: 0.78, h: 0.32 },
+        questionBM: "Rajah 22 menunjukkan sebuah bot yang mengalami kebocoran kecil di bahagian dasar bot yang berlubang. Air didapati bertakung di salah satu ruangan bot.<br>Dengan menggunakan prinsip Fizik yang sesuai, kaedah manakah yang terbaik untuk pemandu bot mengosongkan air dengan cepat daripada ruangan itu?",
+        questionBI: "Diagram 22 shows a boat that has a small leak in the bottom part of the boat with a hole. Water was found stagnant in one of the boat's compartments.<br>Using the appropriate principles of Physics, which method would be best for the boatman to quickly empty the water from the compartment?",
+        options: [
+          { key: "A", bm: "Pemandu bot menggunakan tangannya untuk mengaut air keluar daripada ruangan itu", bi: "The boatman used his hands to scoop the water out of the compartment" },
+          { key: "B", bm: "Pemandu bot menggunakan hos air yang kecil itu sebagai sifon dan mengeluarkan air daripada ruangan itu", bi: "The boatman used the small water hose as a siphon and removed the water from the compartment" },
+          { key: "C", bm: "Pemandu bot mencedok air dengan menggunakan botol air mineral yang dipotong dan dijadikan sebagai pencedok", bi: "The driver scoops water using mineral water bottles that are cut and used as scoops" },
+          { key: "D", bm: "Pemandu menghidupkan enjin dan memandu bot dengan laju menyebabkan air keluar daripada lubang yang bocor itu", bi: "The boatman started the engine and drove the boat at high speed causing water to come out of the leaky hole" }
+        ],
+        answer: "D",
+        explanation: "<b>Penjelasan:</b><br>Apabila bot dipandu laju, aliran air di bawah dasar bot bergerak pada halaju tinggi dan menghasilkan kawasan bertekanan rendah (Prinsip Bernoulli), lalu menyedut keluar air yang bertakung melalui lubang tersebut."
+      },
+      {
+        id: 16,
+        rajahNo: "Halaman 9 • Rajah 14 / Diagram 14",
+        topic: "Tekanan Cecair",
+        hasDiagram: true,
+        crop: { page: 9, x: 0.25, y: 0.45, w: 0.55, h: 0.27 },
+        questionBM: "Rajah 14 menunjukkan susunan radas bagi satu eksperimen.<br>Yang manakah antara kesimpulan berikut adalah betul?",
+        questionBI: "Diagram 14 shows the arrangement of an apparatus for an experiment.<br>Which of the following conclusion is correct?",
+        options: [
+          { key: "A", bm: "Tekanan cecair bertambah dengan kedalaman", bi: "Liquid pressure increases with depth." },
+          { key: "B", bm: "Tekanan cecair bertindak serenjang pada permukaannya", bi: "Liquid pressure acts perpendicularly to its surface" },
+          { key: "C", bm: "Tekanan cecair tidak bergantung pada bentuk bekasnya", bi: "Liquid pressure does not depend on the shape of the container" },
+          { key: "D", bm: "Tekanan cecair disebabkan oleh beratnya yang bertindak ke atas permukaan", bi: "Liquid pressure is caused by its weight acting on a surface" }
+        ],
+        answer: "C",
+        explanation: "<b>Penjelasan:</b><br>Aras cecair berada pada ketinggian yang sama bagi kesemua tiub walaupun bentuknya berbeza. Ini membuktikan <b>tekanan cecair tidak bergantung pada bentuk bekasnya</b>."
+      },
+      {
+        id: 17,
+        rajahNo: "Halaman 10 • Rajah 15 / Diagram 15",
+        topic: "Prinsip Bernoulli",
+        hasDiagram: true,
+        crop: { page: 10, x: 0.14, y: 0.12, w: 0.42, h: 0.34 },
+        questionBM: "Rajah 15 menunjukkan dua buah perahu layar meluncur laju di atas permukaan air dengan tiupan angin yang kuat.<br>Prinsip fizik yang terlibat ialah",
+        questionBI: "Diagram 15 shows two sailboats moving on the sea with strong winds.<br>The physics principles involved are",
+        options: [
+          { key: "A", bm: "Prinsip Pascal", bi: "Pascal's Principle" },
+          { key: "B", bm: "Prinsip Bernoulli", bi: "Bernoulli's Principle" },
+          { key: "C", bm: "Prinsip Archimedes", bi: "Archimedes' Principle" },
+          { key: "D", bm: "Prinsip keabadian momentum", bi: "Principle of conservation of momentum" }
+        ],
+        answer: "B",
+        explanation: "<b>Penjelasan:</b><br>Layar perahu berbentuk aerofoil menggunakan <b>Prinsip Bernoulli</b> untuk menjana daya tujahan daripada perbezaan halaju dan tekanan angin."
+      },
+      {
+        id: 18,
+        rajahNo: "Halaman 10–11 • Rajah 16 / Diagram 16",
+        topic: "Tekanan Cecair",
+        hasDiagram: true,
+        crop: { page: 10, x: 0.24, y: 0.56, w: 0.58, h: 0.38 },
+        questionBM: "Rajah 16 menunjukkan sebuah empangan bagi menghasilkan tenaga elektrik.<br>[Tekanan atmosfera = 10.3 m H₂O, ketumpatan air, ρ = 1 000 kg m⁻³]<br>Hitung tekanan pada kedalaman 135 m, dalam unit kPa.",
+        questionBI: "Diagram 16 shows a dam to generate electricity.<br>[Atmospheric pressure = 10.3 m H₂O, density of water, ρ = 1 000 kg m⁻³]<br>Calculate the pressure at a depth of 135 m, in units kPa.",
+        options: [
+          { key: "A", bm: "145.300 kPa", bi: "" },
+          { key: "B", bm: "1324.350 kPa", bi: "" },
+          { key: "C", bm: "1425.393 kPa", bi: "" },
+          { key: "D", bm: "13640.805 kPa", bi: "" }
+        ],
+        answer: "C",
+        explanation: "<b>Kaedah Penyelesaian:</b><br>Jumlah turus tekanan air = 135 m + 10.3 m = 145.3 m H₂O.<br>P = hρg = 145.3 × 1000 × 9.81 = 1 425 393 Pa = <b>1425.393 kPa</b>."
+      },
+      {
+        id: 19,
+        rajahNo: "Halaman 11 • Rajah 17 / Diagram 17",
+        topic: "Tekanan Gas & Atmosfera",
+        hasDiagram: true,
+        crop: { page: 11, x: 0.34, y: 0.29, w: 0.38, h: 0.35 },
+        questionBM: "Rajah 17 menunjukkan sebuah manometer digital yang digunakan untuk mengukur tekanan gas.<br>Apakah kelebihan menggunakan manometer digital berbanding manometer merkuri?<br>I. Manometer digital mudah dibawa<br>II. Manometer digital dapat mengukur dengan lebih jitu.<br>III. Manometer digital perlu dicas secara berkala.",
+        questionBI: "Diagram 17 shows a digital manometer used to measure gas pressure.<br>What are the advantages of using a digital manometer than mercury manometer?<br>I. Digital manometer is portable.<br>II. Digital manometer can measure more accurately.<br>III. Digital manometer needs to be charged periodically.",
+        options: [
+          { key: "A", bm: "I, II dan III", bi: "I, II and III" },
+          { key: "B", bm: "I dan III sahaja", bi: "I and III only" },
+          { key: "C", bm: "I dan II sahaja", bi: "I and II only" },
+          { key: "D", bm: "II dan III sahaja", bi: "II and III only" }
+        ],
+        answer: "C",
+        explanation: "<b>Penjelasan:</b><br>Manometer digital mudah dibawa (portable) dan memberikan bacaan digital yang lebih jitu (accurate). Pernyataan III ialah kekangan bateri, bukannya kelebihan. Jawapan: <b>I dan II sahaja</b>."
+      },
+      {
+        id: 20,
+        rajahNo: "Halaman 12 • Rajah 19 / Diagram 19",
+        topic: "Tekanan Cecair",
+        hasDiagram: true,
+        crop: { page: 12, x: 0.14, y: 0.14, w: 0.76, h: 0.27 },
+        questionBM: "Rajah 19 menunjukkan sebuah kapal selam yang mengalami tekanan air laut sebanyak 4.94 × 10⁶ Pa pada kedudukan T. Tekanan di dasar laut adalah 11 500 kPa.<br>Tekanan maksimum yang boleh ditampung oleh kapal selam tersebut adalah 7.90 × 10⁶ Pa. Hitung jarak dari T ke dasar laut dan baki jarak menyelam selamat yang masih boleh dilakukan oleh kapal selam itu.<br>[Ketumpatan air laut, ρ = 1060 kg m⁻³, Tekanan atmosfera, P_atm = 100 kPa]",
+        questionBI: "Diagram 19 shows a submarine experiencing a sea water pressure of 4.94 × 10⁶ Pa at position T. The pressure at seabed is 11 500 kPa.<br>The maximum pressure that can be accommodated by the submarine is 7.90 × 10⁶ Pa. Calculate the distance from T to the seabed and the remaining safest diving distance.<br>[Density of sea water, ρ = 1060 kg m⁻³, Atmospheric pressure, P_atm = 100 kPa]",
+        options: [
+          { key: "A", bm: "Jarak T ke dasar laut: 621 m | Baki jarak menyelam selamat: 275 m", bi: "Distance of T to seabed: 621 m | Remaining safest diving distance: 275 m" },
+          { key: "B", bm: "Jarak T ke dasar laut: 631 m | Baki jarak menyelam selamat: 285 m", bi: "Distance of T to seabed: 631 m | Remaining safest diving distance: 285 m" },
+          { key: "C", bm: "Jarak T ke dasar laut: 740 m | Baki jarak menyelam selamat: 240 m", bi: "Distance of T to seabed: 740 m | Remaining safest diving distance: 240 m" },
+          { key: "D", bm: "Jarak T ke dasar laut: 760 m | Baki jarak menyelam selamat: 260 m", bi: "Distance of T to seabed: 760 m | Remaining safest diving distance: 260 m" }
+        ],
+        answer: "B",
+        explanation: "<b>Kaedah Penyelesaian:</b><br>1. Jarak T ke dasar laut: ΔP = (11.50 × 10⁶ − 4.94 × 10⁶) = 6.56 × 10⁶ Pa.<br>h₁ = ΔP / (ρg) = 6.56 × 10⁶ / (1060 × 9.81) = <b>630.85 m ≈ 631 m</b>.<br>2. Baki jarak menyelam selamat: ΔP_selamat = 7.90 × 10⁶ − 4.94 × 10⁶ = 2.96 × 10⁶ Pa.<br>h₂ = 2.96 × 10⁶ / (1060 × 9.81) = <b>284.65 m ≈ 285 m</b>."
+      },
+      {
+        id: 21,
+        rajahNo: "Halaman 13 • Rajah 20 / Diagram 20",
+        topic: "Tekanan Gas & Atmosfera",
+        hasDiagram: true,
+        crop: { page: 13, x: 0.14, y: 0.14, w: 0.78, h: 0.25 },
+        questionBM: "Rajah 20 menunjukkan mangkuk sedutan ditekan ke dinding yang licin. Mangkuk sedutan itu melekat pada dinding apabila dilepaskan.<br>Manakah antara penerangan berikut adalah betul tentang situasi tersebut?",
+        questionBI: "Diagram 20 shows suction cup being pressed against a smooth wall. The suction cup sticks to the wall when released.<br>Which of the following explanation is correct about the situation?",
+        options: [
+          { key: "A", bm: "Tekanan atmosfera sama dengan tekanan udara di dalam mangkuk sedutan", bi: "The atmospheric pressure is equal to the air pressure inside the suction cup" },
+          { key: "B", bm: "Tekanan atmosfera lebih rendah daripada tekanan udara di dalam mangkuk sedutan", bi: "The atmospheric pressure is less than the air pressure inside the suction cup" },
+          { key: "C", bm: "Tekanan atmosfera lebih tinggi daripada tekanan udara di dalam mangkuk sedutan", bi: "The atmospheric pressure is more than the air pressure inside the suction cup" },
+          { key: "D", bm: "Tekanan yang dikenakan oleh tangan > tekanan atmosfera + tekanan udara di dalam mangkuk sedutan", bi: "The pressure applied by hand > the atmospheric pressure + the air pressure inside the suction cup" }
+        ],
+        answer: "C",
+        explanation: "<b>Penjelasan:</b><br>Udara di dalam mangkuk sedutan disingkirkan apabila ditekan, menyebabkan tekanan di dalamnya menjadi rendah. <b>Tekanan atmosfera di luar yang lebih tinggi</b> menekan mangkuk sedutan supaya terus melekat pada dinding."
+      },
+      {
+        id: 22,
+        rajahNo: "Halaman 13 • Soalan 22",
+        topic: "Tekanan Gas & Atmosfera",
+        hasDiagram: false,
+        crop: null,
+        questionBM: "Apakah kuantiti fizik yang diukur oleh manometer?",
+        questionBI: "What is the physical quantity measured by a manometer?",
+        options: [
+          { key: "A", bm: "Suhu", bi: "Temperature" },
+          { key: "B", bm: "Tenaga", bi: "Energy" },
+          { key: "C", bm: "Tekanan", bi: "Pressure" },
+          { key: "D", bm: "Ketumpatan", bi: "Density" }
+        ],
+        answer: "C",
+        explanation: "<b>Penjelasan:</b><br>Manometer ialah alat untuk mengukur <b>tekanan (pressure)</b> gas."
+      },
+      {
+        id: 23,
+        rajahNo: "Halaman 14 • Rajah 21 / Diagram 21",
+        topic: "Prinsip Pascal",
+        hasDiagram: true,
+        crop: { page: 14, x: 0.22, y: 0.14, w: 0.62, h: 0.35 },
+        questionBM: "Rajah 21 menunjukkan kelalang dasar bulat yang mempunyai beberapa lubang digunakan untuk menunjukkan satu prinsip fizik.<br>Nyatakan prinsip yang terlibat.",
+        questionBI: "Diagram 21 shows round bottom flask with several holes used to demonstrate a physics principle.<br>State the principle involved.",
+        options: [
+          { key: "A", bm: "Daya yang dikenakan ke atas bendalir tertutup berkadar langsung dengan kedalaman bendalir itu", bi: "The force exerted on an enclosed fluid is directly proportional to the fluid depth" },
+          { key: "B", bm: "Tekanan yang dikenakan ke atas bendalir tertutup berkadar langsung dengan kedalaman bendalir itu", bi: "The pressure exerted on an enclosed fluid is directly proportional to the fluid depth" },
+          { key: "C", bm: "Daya yang dikenakan ke atas bendalir tertutup akan dipindahkan secara seragam ke semua arah dalam bendalir itu", bi: "The force exerted on an enclosed fluid will be transferred uniformly in all direction in the fluid" },
+          { key: "D", bm: "Tekanan yang dikenakan ke atas bendalir tertutup akan dipindahkan secara seragam ke semua arah dalam bendalir itu", bi: "The pressure exerted on an enclosed fluid will be transferred uniformly in all direction in the fluid" }
+        ],
+        answer: "D",
+        explanation: "<b>Penjelasan:</b><br>Takrifan Prinsip Pascal: <b>Tekanan yang dikenakan ke atas bendalir tertutup akan dipindahkan secara seragam ke semua arah dalam bendalir itu</b>."
+      },
+      {
+        id: 24,
+        rajahNo: "Halaman 15 • Rajah 22 / Diagram 22",
+        topic: "Prinsip Archimedes",
+        hasDiagram: true,
+        crop: { page: 15, x: 0.24, y: 0.14, w: 0.56, h: 0.26 },
+        questionBM: "Rajah 22 menunjukkan sebuah blok kayu berbentuk kubus terapung di dalam air dengan 1/4 daripada ketinggiannya adalah di atas permukaan air. (Panjang sisi kubus = 0.2 m).<br>Berapakah berat blok kayu itu?<br>[Ketumpatan air = 1000 kg m⁻³]",
+        questionBI: "Diagram 22 shows a cube-shaped wooden block floating in water with 1/4 of its height above the surface of the water.<br>What is the weight of the wooden block?<br>[The density of water = 1000 kg m⁻³]",
+        options: [
+          { key: "A", bm: "10.19 N", bi: "" },
+          { key: "B", bm: "19.62 N", bi: "" },
+          { key: "C", bm: "58.86 N", bi: "" },
+          { key: "D", bm: "150.0 N", bi: "" }
+        ],
+        answer: "C",
+        explanation: "<b>Kaedah Penyelesaian:</b><br>Isi padu kubus = 0.2³ = 0.008 m³.<br>Bahagian terendam di dalam air = 3/4 × 0.008 = 0.006 m³.<br>Berat blok kayu = Daya apungan = ρVg = 1000 × 0.006 × 9.81 = <b>58.86 N</b>."
+      },
+      {
+        id: 25,
+        rajahNo: "Halaman 15 • Rajah 18 / Diagram 18",
+        topic: "Tekanan Gas & Atmosfera",
+        hasDiagram: true,
+        crop: { page: 15, x: 0.14, y: 0.62, w: 0.42, h: 0.34 },
+        questionBM: "Rajah 18 menunjukkan alat untuk mengukur tekanan atmosfera.<br>Nama alat ini ialah",
+        questionBI: "Diagram 18 shows the instrument to measure the atmospheric pressure.<br>The name of this instrument is",
+        options: [
+          { key: "A", bm: "Manometer", bi: "Manometer" },
+          { key: "B", bm: "Tolok Bourdon", bi: "Bourdon gauge" },
+          { key: "C", bm: "Barometer merkuri", bi: "Mercury barometer" },
+          { key: "D", bm: "Barometer Aneroid", bi: "Aneroid Barometer" }
+        ],
+        answer: "C",
+        explanation: "<b>Penjelasan:</b><br>Alat yang mempunyai tiub kaca berisi merkuri dengan ruang vakum di atasnya ialah <b>Barometer merkuri (Mercury barometer)</b>."
+      },
+      {
+        id: 26,
+        rajahNo: "Halaman 16 • Rajah 19 / Diagram 19",
+        topic: "Tekanan Gas & Atmosfera",
+        hasDiagram: true,
+        crop: { page: 16, x: 0.28, y: 0.14, w: 0.46, h: 0.32 },
+        questionBM: "Rajah 19 menunjukkan molekul-molekul gas di dalam sebuah silinder. Omboh digerakkan perlahan-lahan ke bawah dan suhu gas tidak berubah.<br>Mengapakah tekanan gas meningkat?",
+        questionBI: "Diagram 19 represents gas molecules contained in a cylinder. The piston is moved slowly downwards, and the temperature of the gas stays the same.<br>Why does the pressure of the gas increase?",
+        options: [
+          { key: "A", bm: "Molekul-molekul berlanggar dengan lebih kuat pada dinding bekas", bi: "The molecules collide harder with the walls" },
+          { key: "B", bm: "Molekul-molekul berlanggar dengan lebih kerap dengan dinding bekas", bi: "The molecules collide more often with the walls" },
+          { key: "C", bm: "Bilangan molekul-molekul bertambah", bi: "The number of molecules increase" },
+          { key: "D", bm: "Molekul-molekul bergerak dengan lebih laju", bi: "The molecules move more quickly" }
+        ],
+        answer: "B",
+        explanation: "<b>Penjelasan:</b><br>Apabila isi padu berkurang pada suhu malar, jarak purata antara molekul menjadi lebih rapat menyebabkan <b>molekul-molekul berlanggar dengan lebih kerap dengan dinding bekas</b>."
+      },
+      {
+        id: 27,
+        rajahNo: "Halaman 16–17 • Rajah 20 / Diagram 20",
+        topic: "Prinsip Archimedes",
+        hasDiagram: true,
+        crop: { page: 16, x: 0.34, y: 0.69, w: 0.32, h: 0.28 },
+        questionBM: "Rajah 20 menunjukkan belon iklan yang dilepaskan pada waktu pagi semasa perasmian sebuah pusat membeli belah di sebuah bandar. Belon sedang naik perlahan-lahan di ruang udara.<br>Antara berikut, yang manakah benar mengenai situasi tersebut?",
+        questionBI: "Diagram 20 shows an advertising balloon released in the morning during the opening of a shopping mall in a city. The balloon is rising slowly in the air space.<br>Which of the following is true about the situation?",
+        options: [
+          { key: "A", bm: "Daya tujah sama dengan berat belon", bi: "The buoyant force equal to the weight of the balloon" },
+          { key: "B", bm: "Daya tujah lebih besar daripada berat belon", bi: "The buoyant force is greater than the weight of the balloon" },
+          { key: "C", bm: "Daya tujah sama dengan isipadu udara tersesar", bi: "The buoyant force equal to the volume of air displaced" },
+          { key: "D", bm: "Ketumpatan gas dalam belon lebih tinggi daripada udara di luar", bi: "The density of the gas in the balloon is higher than the density of the air outside" }
+        ],
+        answer: "B",
+        explanation: "<b>Penjelasan:</b><br>Belon sedang naik ke atas kerana <b>daya tujah (daya apungan) lebih besar daripada berat belon</b>."
+      },
+      {
+        id: 28,
+        rajahNo: "Halaman 17 • Rajah 21 / Diagram 21",
+        topic: "Prinsip Bernoulli",
+        hasDiagram: true,
+        crop: { page: 17, x: 0.22, y: 0.30, w: 0.58, h: 0.26 },
+        questionBM: "Rajah 21 menunjukkan air mengalir melalui tiub venturi.<br>Pada titik manakah halaju air paling tinggi?",
+        questionBI: "Diagram 21 shows water flowing into a venturi tube.<br>At which point is the velocity of water the highest?",
+        options: [
+          { key: "A", bm: "A", bi: "" },
+          { key: "B", bm: "B", bi: "" },
+          { key: "C", bm: "C", bi: "" }
+        ],
+        answer: "B",
+        explanation: "<b>Penjelasan:</b><br>Pada bahagian paling sempit iaitu <b>B</b>, halaju aliran air adalah paling tinggi menyebabkan tekanan air paling rendah."
+      },
+      {
+        id: 29,
+        rajahNo: "Halaman 17–18 • Rajah 14 / Diagram 14",
+        topic: "Tekanan Cecair",
+        hasDiagram: true,
+        crop: { page: 17, x: 0.14, y: 0.65, w: 0.78, h: 0.32 },
+        questionBM: "Rajah 14 menunjukkan set radas corong tisel yang disambungkan kepada sebuah manometer merkuri. Apabila corong tisel ditolak ke dalam air, panjang X bertambah.<br>Apakah kuantiti fizik yang mewakili panjang X dalam manometer itu?",
+        questionBI: "Diagram 14 shows a thistle funnel connected to a mercury manometer. When the thistle funnel is pushed into water, length of X increases.<br>What is the physical quantity that represent the length of X in the manometer?",
+        options: [
+          { key: "A", bm: "Kedalaman air", bi: "Depth of water" },
+          { key: "B", bm: "Tekanan atmosfera", bi: "Atmospheric pressure" },
+          { key: "C", bm: "Tekanan air", bi: "Water pressure" },
+          { key: "D", bm: "Ketumpatan air", bi: "Density of water" }
+        ],
+        answer: "C",
+        explanation: "<b>Penjelasan:</b><br>Beza aras merkuri X pada manometer mewakili magnitud <b>tekanan air (water pressure)</b> yang bertindak ke atas kepingan getah corong tisel."
+      },
+      {
+        id: 30,
+        rajahNo: "Halaman 18 • Rajah 15 / Diagram 15",
+        topic: "Tekanan Gas & Atmosfera",
+        hasDiagram: true,
+        crop: { page: 18, x: 0.32, y: 0.25, w: 0.36, h: 0.37 },
+        questionBM: "Rajah 15 menunjukkan seorang budak lelaki sedang mengepam sebiji bola.<br>Tekanan gas bola itu wujud kerana molekul gas",
+        questionBI: "Diagram 15 shows a boy pumping a ball.<br>Gas pressure of the ball exists because the gas molecules",
+        options: [
+          { key: "A", bm: "bergerak secara rawak dan bebas.", bi: "move randomly and freely." },
+          { key: "B", bm: "bergerak pada halaju yang sama.", bi: "move at the same velocity." },
+          { key: "C", bm: "berlanggar dengan dinding bekas menghasilkan perubahan momentum.", bi: "collide with the wall of the container producing change of momentum." },
+          { key: "D", bm: "berlanggar dengan dinding bekas menghasilkan daya per unit luas.", bi: "collide with the wall of the container producing force per unit area." }
+        ],
+        answer: "C",
+        explanation: "<b>Penjelasan:</b><br>Mengikut teori kinetik gas, molekul gas <b>berlanggar secara kenyal dengan dinding bekas lalu menghasilkan kadar perubahan momentum</b> yang melahirkan daya impuls."
+      },
+      {
+        id: 31,
+        rajahNo: "Halaman 19 • Rajah 16 / Diagram 16",
+        topic: "Prinsip Pascal",
+        hasDiagram: true,
+        crop: { page: 19, x: 0.26, y: 0.12, w: 0.48, h: 0.33 },
+        questionBM: "Rajah 16 menunjukkan sebuah sistem hidraulik ringkas.<br>Jika luas omboh kecil ialah 1.5 cm², berapakah jejari bagi omboh besar yang diperlukan untuk sistem hidraulik itu?",
+        questionBI: "Diagram 16 shows a simple hydraulic system.<br>If the area of the small piston is 1.5 cm², what is radius of the large piston that is required for the hydraulic system?",
+        options: [
+          { key: "A", bm: "0.50 cm", bi: "" },
+          { key: "B", bm: "1.38 cm", bi: "" },
+          { key: "C", bm: "3.76 cm", bi: "" },
+          { key: "D", bm: "6.00 cm", bi: "" }
+        ],
+        answer: "B",
+        explanation: "<b>Kaedah Penyelesaian:</b><br>F₁ / A₁ = F₂ / A₂ ➔ 5 / 1.5 = 20 / A₂ ➔ A₂ = 6.0 cm².<br>Luas permukaan bulatan omboh besar, πr² = 6.0 cm² ➔ r = √(6.0 / π) = <b>1.38 cm</b>."
+      },
+      {
+        id: 32,
+        rajahNo: "Halaman 19–20 • Rajah 17 / Diagram 17",
+        topic: "Prinsip Bernoulli",
+        hasDiagram: true,
+        crop: { page: 19, x: 0.22, y: 0.65, w: 0.68, h: 0.32 },
+        questionBM: "Rajah 17 menunjukkan sebuah hud dapur.<br>Apakah prinsip fizik yang terlibat bagi penggunaan peralatan tersebut?",
+        questionBI: "Diagram 17 shows a kitchen hood.<br>What is the physics principle involved in the use of the appliance?",
+        options: [
+          { key: "A", bm: "Prinsip Pascal", bi: "Pascal principle" },
+          { key: "B", bm: "Prinsip Bernoulli", bi: "Bernoulli's principle" },
+          { key: "C", bm: "Prinsip Archimedes", bi: "Archimedes' principle" },
+          { key: "D", bm: "Prinsip Keabadian Tenaga", bi: "Principle of Conservation of Energy" }
+        ],
+        answer: "B",
+        explanation: "<b>Penjelasan:</b><br>Aliran udara berhalaju tinggi yang dijana oleh kipas hud dapur mewujudkan kawasan bertekanan rendah mengikut <b>Prinsip Bernoulli</b>."
+      },
+      {
+        id: 33,
+        rajahNo: "Halaman 20 • Rajah 13 / Diagram 13",
+        topic: "Tekanan Gas & Atmosfera",
+        hasDiagram: true,
+        crop: { page: 20, x: 0.34, y: 0.25, w: 0.30, h: 0.26 },
+        questionBM: "Rajah 13 menunjukkan seorang budak minum sekotak susu.<br>Apabila beliau habis minum susu kotak itu kelihatan kemik ke dalam. Apakah yang menyebabkan situasi itu berlaku?",
+        questionBI: "Diagram 13 shows a kid drinking a packet of milk.<br>When he finished drinking, the empty packet crumbled. What causes this situation to happen?",
+        options: [
+          { key: "A", bm: "tekanan atmosfera > tekanan dalam kotak minuman", bi: "the atmospheric pressure > the pressure inside the drinking packet" },
+          { key: "B", bm: "Tekanan atmosfera < tekanan dalam kotak minuman", bi: "the atmospheric pressure < the pressure inside the drinking packet" },
+          { key: "C", bm: "Tekanan atmosfera = tekanan dalam kotak minuman", bi: "The atmospheric pressure = the pressure inside the drinking packet" }
+        ],
+        answer: "A",
+        explanation: "<b>Penjelasan:</b><br>Sedutan mengeluarkan udara dari dalam kotak minuman menyebabkan tekanan di dalamnya berkurang. Maka <b>tekanan atmosfera > tekanan dalam kotak minuman</b>."
+      },
+      {
+        id: 34,
+        rajahNo: "Halaman 20–21 • Rajah 14 / Diagram 14",
+        topic: "Prinsip Pascal",
+        hasDiagram: true,
+        crop: { page: 20, x: 0.22, y: 0.74, w: 0.58, h: 0.24 },
+        questionBM: "Rajah 14 menunjukkan sistem hidraulik ringkas dengan luas keratan rentas omboh kecil dan omboh besarnya 0.003 m² dan 0.1 m² masing-masing. Satu daya 15 N dikenakan pada omboh kecil.<br>Jika omboh kecil ditekan ke bawah pada jarak 0.04 m, berapakah jarak pergerakan omboh besar?",
+        questionBI: "Diagram 14 shows a basic hydraulic system that has small and large pistons with cross-sectional areas of 0.003 m² and 0.1 m² respectively. A force of 15 N is applied to the small piston.<br>If the small piston is pushed down at a depth of 0.04 m, what is the distance moved by the large piston?",
+        options: [
+          { key: "A", bm: "1.2 × 10⁻³ m", bi: "" },
+          { key: "B", bm: "1.4 × 10⁻³ m", bi: "" },
+          { key: "C", bm: "1.6 × 10⁻³ m", bi: "" },
+          { key: "D", bm: "1.8 × 10⁻³ m", bi: "" }
+        ],
+        answer: "A",
+        explanation: "<b>Kaedah Penyelesaian:</b><br>Isi padu cecair yang dipindahkan adalah sama: <b>A₁ d₁ = A₂ d₂</b><br>0.003 × 0.04 = 0.1 × d₂<br>d₂ = 0.00012 / 0.1 = <b>1.2 × 10⁻³ m</b>."
+      },
+      {
+        id: 35,
+        rajahNo: "Halaman 21 • Rajah 15 / Diagram 15",
+        topic: "Prinsip Archimedes",
+        hasDiagram: true,
+        crop: { page: 21, x: 0.26, y: 0.37, w: 0.52, h: 0.17 },
+        questionBM: "Sebuah kapal berjisim 6000 kg terapung di laut. Jika ketumpatan air laut ialah 1025 kg m⁻³, apakah isipadu air laut yang disesarkan?",
+        questionBI: "A ship of mass 6000 kg floats in the sea. If the density of the sea water is 1025 kg m⁻³, what is the volume of the displaced sea water?",
+        options: [
+          { key: "A", bm: "3.25 m³", bi: "" },
+          { key: "B", bm: "5.85 m³", bi: "" },
+          { key: "C", bm: "4 975 m³", bi: "" },
+          { key: "D", bm: "6 150 000 m³", bi: "" }
+        ],
+        answer: "B",
+        explanation: "<b>Kaedah Penyelesaian:</b><br>Jisim air laut disesarkan = jisim kapal = 6000 kg.<br>V = m / ρ = 6000 / 1025 = <b>5.85 m³</b>."
+      },
+      {
+        id: 36,
+        rajahNo: "Halaman 21 • Rajah 16 / Diagram 16",
+        topic: "Prinsip Bernoulli",
+        hasDiagram: true,
+        crop: { page: 21, x: 0.24, y: 0.65, w: 0.56, h: 0.18 },
+        questionBM: "Rajah 16 menunjukkan keratan rentas sayap sebuah kapal terbang yang mempunyai bentuk aerofoil.<br>Bahagian sayap yang manakah akan mengalami tekanan lebih rendah semasa kapal terbang itu memecut di sepanjang landasan?",
+        questionBI: "Diagram 16 shows the cross section of the wing of an aeroplane that has the shape of an aerofoil.<br>Which part of the aeroplane wing will experience a lower pressure when the aeroplane is accelerating along the runway?",
+        options: [
+          { key: "A", bm: "W", bi: "" },
+          { key: "B", bm: "X", bi: "" },
+          { key: "C", bm: "Y", bi: "" },
+          { key: "D", bm: "Z", bi: "" }
+        ],
+        answer: "D",
+        explanation: "<b>Penjelasan:</b><br>Udara mengalir dengan halaju paling tinggi di bahagian atas sayap yang melengkung iaitu <b>Z</b>, menghasilkan kawasan bertekanan paling rendah."
+      },
+      {
+        id: 37,
+        rajahNo: "Halaman 22 • Rajah 14 / Diagram 14",
+        topic: "Tekanan Cecair",
+        hasDiagram: true,
+        crop: { page: 22, x: 0.14, y: 0.19, w: 0.78, h: 0.25 },
+        questionBM: "Rajah 14 menunjukkan cecair memancut keluar dari lubang, pada kedalaman yang sama. Manakah antara perbandingan berikut benar tentang ketumpatan, ρ bagi cecair-cecair tersebut?",
+        questionBI: "Diagram 14 shows the liquid spurting out of the hole at the same depth. Which of the following comparisons is true about the density, ρ of the liquids?",
+        options: [
+          { key: "A", bm: "ρ_X > ρ_Y > ρ_Z", bi: "" },
+          { key: "B", bm: "ρ_Y > ρ_X > ρ_Z", bi: "" },
+          { key: "C", bm: "ρ_Z > ρ_Y > ρ_X", bi: "" },
+          { key: "D", bm: "ρ_X > ρ_Z > ρ_Y", bi: "" }
+        ],
+        answer: "D",
+        explanation: "<b>Penjelasan:</b><br>Perhatikan lengkung pancutan pada Rajah 14 asal: Pancutan Cecair X paling jauh, diikuti Cecair Z, manakala pancutan Cecair Y paling dekat.<br>Oleh sebab pada kedalaman yang sama tekanan berkadar terus dengan ketumpatan (P = hρg), maka <b>ρ_X > ρ_Z > ρ_Y</b>."
+      },
+      {
+        id: 38,
+        rajahNo: "Halaman 22 • Rajah 15 / Diagram 15",
+        topic: "Tekanan Gas & Atmosfera",
+        hasDiagram: true,
+        crop: { page: 22, x: 0.14, y: 0.55, w: 0.78, h: 0.22 },
+        questionBM: "Rajah 15 menunjukkan pengangkat kaca yang digunakan untuk memindahkan satu kepingan kaca di tapak pembinaan. Bagaimanakah pengangkat kaca itu berfungsi?",
+        questionBI: "Diagram 15 shows a glass lifter used to move a piece of glass at a construction site. How does the glass lifter work?",
+        options: [
+          { key: "A", bm: "Pengangkat menghasilkan daya lekitan antara pengangkat dan kaca", bi: "The lifter creates a cohesive force between the lifter and the glass" },
+          { key: "B", bm: "Tekanan atmosfera di luar pengangkat lebih kecil dari tekanan udara di dalam pengangkat", bi: "The atmospheric pressure outside the lifter is less than the air pressure inside the lifter" },
+          { key: "C", bm: "Pengangkat menghasilkan ruang vakum antara pengangkat dan kaca, maka tekanan atmosfera akan menjadi lebih besar daripada tekanan udara di dalam dan menghasilkan daya lekatan", bi: "The lifter creates a vacuum space between the lifter and the glass, so the atmospheric pressure will be greater than the air pressure inside and produce adhesive force" },
+          { key: "D", bm: "Pengangkat menghasilkan ruang vakum antara pengangkat dan kaca, maka tekanan atmosfera akan menjadi lebih kecil daripada tekanan udara di dalam pengangkat", bi: "The lifter creates a vacuum space between the lifter and the glass, so the atmospheric pressure will be smaller than the air pressure inside the lifter" }
+        ],
+        answer: "C",
+        explanation: "<b>Penjelasan:</b><br>Pengangkat kaca mewujudkan ruang separa vakum (tekanan sangat rendah) di antara cakera getah dan permukaan kaca. Tekanan atmosfera luar yang lebih tinggi menekan pengangkat kaca dengan kuat."
+      },
+      {
+        id: 39,
+        rajahNo: "Halaman 23 • Rajah 16 / Diagram 16",
+        topic: "Prinsip Archimedes",
+        hasDiagram: true,
+        crop: { page: 23, x: 0.14, y: 0.18, w: 0.78, h: 0.25 },
+        questionBM: "Rajah 16 menunjukkan sebiji kelapa sedang terapung di dalam laut. Apakah yang akan berlaku kepada daya apungan dan berat air disesarkan apabila kelapa memasuki muara sungai?",
+        questionBI: "Diagram 16 shows a coconut floating in the sea. What will happen to the buoyant force and weight of water displaced when the coconut enters the river mouth?",
+        options: [
+          { key: "A", bm: "Daya apungan: Bertambah | Berat air disesarkan: Bertambah", bi: "Buoyant force: Increase | Weight of water displaced: Increase" },
+          { key: "B", bm: "Daya apungan: Tidak berubah | Berat air disesarkan: Tidak berubah", bi: "Buoyant force: Unchanged | Weight of water displaced: Unchanged" },
+          { key: "C", bm: "Daya apungan: Berkurang | Berat air disesarkan: Tidak berubah", bi: "Buoyant force: Decrease | Weight of water displaced: Unchanged" },
+          { key: "D", bm: "Daya apungan: Berkurang | Berat air disesarkan: Bertambah", bi: "Buoyant force: Decrease | Weight of water displaced: Increase" }
+        ],
+        answer: "B",
+        explanation: "<b>Penjelasan:</b><br>Kelapa masih terapung di muara sungai, maka daya apungan kekal sama dengan berat kelapa (<b>tidak berubah</b>), dan menurut Prinsip Archimedes berat air yang disesarkan juga <b>tidak berubah</b>."
+      },
+      {
+        id: 40,
+        rajahNo: "Halaman 24 • Rajah 17 / Diagram 17",
+        topic: "Prinsip Bernoulli",
+        hasDiagram: true,
+        crop: { page: 24, x: 0.14, y: 0.19, w: 0.78, h: 0.34 },
+        questionBM: "Rajah 17 menunjukkan satu aktiviti rekreasi yang dikenali sebagai paralayar, di mana seseorang ditarik di belakang bot laju sambil diikat pada satu sayap kanopi. Apakah yang menyebabkan sayap kanopi terangkat?",
+        questionBI: "Diagram 17 shows a recreational activity known as parasailing, where a person is towed behind a speed boat while tied to a canopy wing. What causes the canopy wing to lift?",
+        options: [
+          { key: "A", bm: "Halaju aliran udara yang lebih tinggi di bahagian atas kanopi berbanding bahagian bawah kanopi", bi: "The air flow velocity is higher on top of the canopy than below the canopy" },
+          { key: "B", bm: "Tekanan udara lebih tinggi di bahagian bawah kanopi berbanding bahagian atas kanopi menghasilkan daya angkat", bi: "The air pressure is higher at below the canopy than on top the canopy produces lift force" },
+          { key: "C", bm: "Halaju aliran udara yang lebih rendah di bahagian atas kanopi berbanding bahagian bawah kanopi", bi: "The air flow velocity is lower on top of the canopy than below the canopy" },
+          { key: "D", bm: "Tekanan udara yang lebih tinggi di bahagian atas kanopi berbanding bahagian bawah menghasilkan daya angkat", bi: "The air pressure is higher on top of the canopy than below the canopy produces lift force" }
+        ],
+        answer: "B",
+        explanation: "<b>Penjelasan:</b><br>Sayap kanopi terangkat kerana <b>tekanan udara yang lebih tinggi di bahagian bawah kanopi berbanding bahagian atas kanopi menghasilkan daya angkat</b>."
+      }
+    ];
+
+    /* =========================================================================
+       INDEXEDDB STORAGE FOR ORIGINAL EXTRACTED IMAGES (No size limit issues)
+       ========================================================================= */
+    const DB_NAME = 'FizikTekananOriginalImagesDB';
+    const STORE_NAME = 'originalImages';
+    let dbInstance = null;
+    let extractedImagesMap = Object.assign({}, window.EMBEDDED_ORIGINAL_IMAGES);
+    let fullPdfPagesMap = {};
+    let loadedPdfDocument = null;
+    let showingFullPageMode = false;
+
+    function openImageDB() {
+      return new Promise((resolve, reject) => {
+        if (dbInstance) return resolve(dbInstance);
+        const req = indexedDB.open(DB_NAME, 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME);
+          }
+        };
+        req.onsuccess = (e) => {
+          dbInstance = e.target.result;
+          resolve(dbInstance);
+        };
+        req.onerror = () => resolve(null);
+      });
+    }
+
+    async function saveImageToDB(key, dataUrl) {
+      extractedImagesMap[key] = dataUrl;
+      const db = await openImageDB();
+      if (!db) return;
+      return new Promise((resolve) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        tx.objectStore(STORE_NAME).put(dataUrl, String(key));
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => resolve();
+      });
+    }
+
+    async function loadAllImagesFromDB() {
+      const db = await openImageDB();
+      if (!db) return;
+      return new Promise((resolve) => {
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.openCursor();
+        req.onsuccess = (e) => {
+          const cursor = e.target.result;
+          if (cursor) {
+            extractedImagesMap[cursor.key] = cursor.value;
+            cursor.continue();
+          } else {
+            resolve();
+          }
+        };
+        req.onerror = () => resolve();
+      });
+    }
+
+    /* =========================================================================
+       PDF.JS AUTOMATIC ORIGINAL DIAGRAM EXTRACTOR (ZERO REDRAWING)
+       ========================================================================= */
+    function handleDragOver(e) {
+      e.preventDefault();
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0];
+        if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+          processPdfFile(file);
+        } else if (file.type.startsWith('image/')) {
+          readDirectImageFile(file);
+        }
+      }
+    }
+
+    function handlePdfFileSelect(e) {
+      const file = e.target.files[0];
+      if (file) processPdfFile(file);
+    }
+
+    async function processPdfFile(file) {
+      try {
+        const progWrap = document.getElementById('extractionProgressWrap');
+        const progBar = document.getElementById('extractionProgressBar');
+        const statusTxt = document.getElementById('extractionStatusText');
+        progWrap.classList.remove('hidden');
+        progBar.style.width = '5%';
+        statusTxt.innerText = `Membaca fail asal ${file.name}...`;
+
+        const arrayBuffer = await file.arrayBuffer();
+        loadedPdfDocument = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const numPages = loadedPdfDocument.numPages;
+
+        // Render pages and crop original diagrams verbatim
+        const pageCanvases = {};
+        for (let p = 1; p <= numPages; p++) {
+          const pct = Math.round((p / numPages) * 85);
+          progBar.style.width = `${pct}%`;
+          statusTxt.innerText = `Mengekstrak imej asal halaman ${p} daripada ${numPages}...`;
+
+          const page = await loadedPdfDocument.getPage(p);
+          const viewport = page.getViewport({ scale: 2.2 }); // High-res original scan fidelity
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext('2d');
+          await page.render({ canvasContext: ctx, viewport }).promise;
+          pageCanvases[p] = canvas;
+
+          // Save full page image for optional full-page inspection
+          const fullDataUrl = canvas.toDataURL('image/jpeg', 0.88);
+          fullPdfPagesMap[p] = fullDataUrl;
+          await saveImageToDB(`page_${p}`, fullDataUrl);
+        }
+
+        // Crop each question's exact diagram region from the rendered PDF page
+        for (const q of questions) {
+          if (q.hasDiagram && q.crop && pageCanvases[q.crop.page]) {
+            const srcCanvas = pageCanvases[q.crop.page];
+            const sx = Math.max(0, Math.floor(q.crop.x * srcCanvas.width));
+            const sy = Math.max(0, Math.floor(q.crop.y * srcCanvas.height));
+            const sw = Math.min(srcCanvas.width - sx, Math.floor(q.crop.w * srcCanvas.width));
+            const sh = Math.min(srcCanvas.height - sy, Math.floor(q.crop.h * srcCanvas.height));
+
+            const cropCanvas = document.createElement('canvas');
+            cropCanvas.width = sw;
+            cropCanvas.height = sh;
+            const cropCtx = cropCanvas.getContext('2d');
+            cropCtx.drawImage(srcCanvas, sx, sy, sw, sh, 0, 0, sw, sh);
+
+            const croppedDataUrl = cropCanvas.toDataURL('image/png');
+            await saveImageToDB(`q_${q.id}`, croppedDataUrl);
+          }
+        }
+
+        progBar.style.width = '100%';
+        statusTxt.innerText = `Selesai! Kesemua 35 rajah asal berjaya diekstrak 100% tanpa lukisan semula.`;
+        updateBannerAfterExtraction();
+        renderCurrentQuestion();
+      } catch (err) {
+        showCustomDialog("Ralat Memuatkan PDF", "Gagal membaca fail PDF. Sila pastikan anda memilih fail TEKANAN.pdf yang sah.");
+      }
+    }
+
+    function updateBannerAfterExtraction() {
+      const hasExtracted = Object.keys(extractedImagesMap).some(k => k.startsWith('q_'));
+      const banner = document.getElementById('pdfExtractorBanner');
+      const btnExport = document.getElementById('btnExportHtml');
+
+      if (hasExtracted) {
+        banner.className = "bg-emerald-50 dark:bg-emerald-950/40 border-b border-emerald-200 dark:border-emerald-800/70 py-2 px-4 transition-all";
+        document.getElementById('bannerTitleText').innerText = "✓ Semua Imej & Rajah Asal TEKANAN.pdf Telah Dimuatkan (100% Asal)";
+        document.getElementById('bannerSubText').innerText = "Anda boleh melaraskan kawasan keratan mana-mana rajah dengan butang 'Laras Keratan PDF Asal' atau memuat turun fail HTML lengkap.";
+        btnExport.classList.remove('hidden');
+        btnExport.classList.add('flex');
+      }
+    }
+
+    /* =========================================================================
+       INTERACTIVE ORIGINAL PDF CROP ADJUSTER & DIRECT PASTE/UPLOAD
+       ========================================================================= */
+    let cropModalCurrentPage = 1;
+    let isDraggingCrop = false;
+    let cropStartPt = { x: 0, y: 0 };
+    let cropEndPt = { x: 0, y: 0 };
+
+    function openCropAdjusterModal() {
+      const activeList = getFilteredQuestions();
+      const q = activeList[currentQuestionIndex];
+      cropModalCurrentPage = (q.crop && q.crop.page) ? q.crop.page : 1;
+
+      const modal = document.getElementById('cropAdjusterModal');
+      modal.classList.remove('hidden');
+      renderCropModalPage();
+    }
+
+    function closeCropAdjusterModal() {
+      document.getElementById('cropAdjusterModal').classList.add('hidden');
+    }
+
+    function changeCropModalPage(delta) {
+      const nextP = cropModalCurrentPage + delta;
+      if (nextP >= 1 && nextP <= 24) {
+        cropModalCurrentPage = nextP;
+        renderCropModalPage();
+      }
+    }
+
+    function renderCropModalPage() {
+      document.getElementById('cropModalPageNum').innerText = `${cropModalCurrentPage} / 24`;
+      const canvas = document.getElementById('cropModalPdfCanvas');
+      const ctx = canvas.getContext('2d');
+      const pageDataUrl = extractedImagesMap[`page_${cropModalCurrentPage}`] || fullPdfPagesMap[cropModalCurrentPage];
+
+      if (!pageDataUrl) {
+        showCustomDialog("Muat Naik TEKANAN.pdf Dahulu", "Sila muat naik fail TEKANAN.pdf terlebih dahulu untuk memaparkan halaman asal PDF.");
+        closeCropAdjusterModal();
+        return;
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        document.getElementById('cropSelectionBox').classList.add('hidden');
+      };
+      img.src = pageDataUrl;
+    }
+
+    // Mouse / Touch events on cropTouchOverlay
+    const overlay = document.getElementById('cropTouchOverlay');
+    overlay.addEventListener('mousedown', (e) => {
+      const rect = overlay.getBoundingClientRect();
+      isDraggingCrop = true;
+      cropStartPt = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      cropEndPt = { ...cropStartPt };
+      updateCropSelectionBoxUI();
+    });
+    overlay.addEventListener('mousemove', (e) => {
+      if (!isDraggingCrop) return;
+      const rect = overlay.getBoundingClientRect();
+      cropEndPt = {
+        x: Math.max(0, Math.min(rect.width, e.clientX - rect.left)),
+        y: Math.max(0, Math.min(rect.height, e.clientY - rect.top))
+      };
+      updateCropSelectionBoxUI();
+    });
+    window.addEventListener('mouseup', () => {
+      isDraggingCrop = false;
+    });
+
+    function updateCropSelectionBoxUI() {
+      const box = document.getElementById('cropSelectionBox');
+      const left = Math.min(cropStartPt.x, cropEndPt.x);
+      const top = Math.min(cropStartPt.y, cropEndPt.y);
+      const width = Math.abs(cropEndPt.x - cropStartPt.x);
+      const height = Math.abs(cropEndPt.y - cropStartPt.y);
+      box.style.left = `${left}px`;
+      box.style.top = `${top}px`;
+      box.style.width = `${width}px`;
+      box.style.height = `${height}px`;
+      box.classList.remove('hidden');
+    }
+
+    async function applyCustomPdfCrop() {
+      const overlayRect = overlay.getBoundingClientRect();
+      const canvas = document.getElementById('cropModalPdfCanvas');
+      const left = Math.min(cropStartPt.x, cropEndPt.x);
+      const top = Math.min(cropStartPt.y, cropEndPt.y);
+      const width = Math.abs(cropEndPt.x - cropStartPt.x);
+      const height = Math.abs(cropEndPt.y - cropStartPt.y);
+
+      if (width < 15 || height < 15) {
+        showCustomDialog("Kawasan Terlalu Kecil", "Sila seret kotak pilihan pada kawasan rajah asal yang ingin diambil.");
+        return;
+      }
+
+      const scaleX = canvas.width / overlayRect.width;
+      const scaleY = canvas.height / overlayRect.height;
+
+      const sx = Math.floor(left * scaleX);
+      const sy = Math.floor(top * scaleY);
+      const sw = Math.floor(width * scaleX);
+      const sh = Math.floor(height * scaleY);
+
+      const outCanvas = document.createElement('canvas');
+      outCanvas.width = sw;
+      outCanvas.height = sh;
+      outCanvas.getContext('2d').drawImage(canvas, sx, sy, sw, sh, 0, 0, sw, sh);
+
+      const activeList = getFilteredQuestions();
+      const q = activeList[currentQuestionIndex];
+      const dataUrl = outCanvas.toDataURL('image/png');
+      await saveImageToDB(`q_${q.id}`, dataUrl);
+
+      showingFullPageMode = false;
+      closeCropAdjusterModal();
+      renderCurrentQuestion();
+    }
+
+    function toggleFullPdfPageView() {
+      showingFullPageMode = !showingFullPageMode;
+      renderCurrentQuestion();
+    }
+
+    function triggerDirectImageUpload() {
+      document.getElementById('singleImageInput').click();
+    }
+
+    function handleSingleImageUpload(e) {
+      const file = e.target.files[0];
+      if (file) readDirectImageFile(file);
+    }
+
+    function readDirectImageFile(file) {
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const activeList = getFilteredQuestions();
+        const q = activeList[currentQuestionIndex];
+        await saveImageToDB(`q_${q.id}`, ev.target.result);
+        showingFullPageMode = false;
+        renderCurrentQuestion();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Support Ctrl+V direct image paste onto any question
+    window.addEventListener('paste', (e) => {
+      if (!e.clipboardData || !e.clipboardData.items) return;
+      for (const item of e.clipboardData.items) {
+        if (item.type.indexOf('image') !== -1) {
+          const file = item.getAsFile();
+          if (file) readDirectImageFile(file);
+          break;
+        }
+      }
+    });
+
+    /* =========================================================================
+       STANDALONE HTML EXPORT WITH EMBEDDED ORIGINAL IMAGES
+       ========================================================================= */
+    function exportStandaloneHTML() {
+      // Embed only question crops (q_1..q_40) to keep file fast and self-contained
+      const cleanEmbed = {};
+      questions.forEach(q => {
+        if (extractedImagesMap[`q_${q.id}`]) {
+          cleanEmbed[`q_${q.id}`] = extractedImagesMap[`q_${q.id}`];
+        }
+      });
+
+      let htmlSource = document.documentElement.outerHTML;
+      const scriptInjection = `window.EMBEDDED_ORIGINAL_IMAGES = ${JSON.stringify(cleanEmbed)};`;
+      htmlSource = htmlSource.replace(
+        'window.EMBEDDED_ORIGINAL_IMAGES = window.EMBEDDED_ORIGINAL_IMAGES || {};',
+        scriptInjection
+      );
+
+      const blob = new Blob(['<!DOCTYPE html>\n' + htmlSource], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Modul_Interaktif_Tekanan_Rajah_Asal.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    /* =========================================================================
+       QUIZ STATE & NAVIGATION LOGIC
+       ========================================================================= */
+    let currentQuestionIndex = 0;
+    let quizMode = 'practice';
+    let currentFilterTopic = 'ALL';
+    let userAnswers = {};
+    let checkedStatus = {};
+    let bookmarkedQs = {};
+    let examTimeRemaining = 60 * 60;
+    let examTimerInterval = null;
+    let isExamFinished = false;
+
+    const subtopics = [
+      "Tekanan Cecair",
+      "Tekanan Gas & Atmosfera",
+      "Prinsip Pascal",
+      "Prinsip Archimedes",
+      "Prinsip Bernoulli"
+    ];
+
+    function saveStudentInfo() {
+      const info = {
+        name: document.getElementById('studentName').value,
+        id: document.getElementById('studentID').value,
+        mrsm: document.getElementById('studentMRSM').value
+      };
+      localStorage.setItem('fizik_tekanan_student', JSON.stringify(info));
+    }
+
+    function loadSavedState() {
+      try {
+        const savedAns = localStorage.getItem('fizik_tekanan_userAnswers');
+        const savedBookmarks = localStorage.getItem('fizik_tekanan_bookmarks');
+        const savedStudent = localStorage.getItem('fizik_tekanan_student');
+        if (savedAns) userAnswers = JSON.parse(savedAns);
+        if (savedBookmarks) bookmarkedQs = JSON.parse(savedBookmarks);
+        if (savedStudent) {
+          const s = JSON.parse(savedStudent);
+          document.getElementById('studentName').value = s.name || '';
+          document.getElementById('studentID').value = s.id || '';
+          document.getElementById('studentMRSM').value = s.mrsm || '';
+        }
+      } catch (e) {}
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem('fizik_tekanan_userAnswers', JSON.stringify(userAnswers));
+        localStorage.setItem('fizik_tekanan_bookmarks', JSON.stringify(bookmarkedQs));
+      } catch (e) {}
+    }
+
+    function setQuizMode(mode) {
+      quizMode = mode;
+      const btnPractice = document.getElementById('btnPracticeMode');
+      const btnExam = document.getElementById('btnExamMode');
+      const timerBadge = document.getElementById('examTimerBadge');
+      const btnCheck = document.getElementById('btnCheckAnswer');
+      const btnFinish = document.getElementById('btnFinishExam');
+
+      if (mode === 'practice') {
+        btnPractice.className = "px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-sm transition";
+        btnExam.className = "px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 transition";
+        timerBadge.classList.add('hidden');
+        btnCheck.classList.remove('hidden');
+        btnFinish.classList.add('hidden');
+        clearInterval(examTimerInterval);
+      } else {
+        btnExam.className = "px-2.5 py-1 rounded-lg bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-sm transition";
+        btnPractice.className = "px-2.5 py-1 rounded-lg text-slate-600 dark:text-slate-300 hover:text-slate-900 transition";
+        timerBadge.classList.remove('hidden');
+        timerBadge.classList.add('flex');
+        btnCheck.classList.add('hidden');
+        btnFinish.classList.remove('hidden');
+        startExamTimer();
+      }
+      renderCurrentQuestion();
+      updatePaletteUI();
+    }
+
+    function startExamTimer() {
+      clearInterval(examTimerInterval);
+      examTimerInterval = setInterval(() => {
+        if (examTimeRemaining > 0) {
+          examTimeRemaining--;
+          const m = Math.floor(examTimeRemaining / 60);
+          const s = examTimeRemaining % 60;
+          document.getElementById('timerDisplay').innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        } else {
+          clearInterval(examTimerInterval);
+          submitExam();
+        }
+      }, 1000);
+    }
+
+    function getFilteredQuestions() {
+      if (currentFilterTopic === 'ALL') return questions;
+      return questions.filter(q => q.topic === currentFilterTopic);
+    }
+
+    function filterByTopic(topic) {
+      currentFilterTopic = topic;
+      document.querySelectorAll('.topic-tab-btn').forEach(btn => {
+        btn.className = "topic-tab-btn px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 whitespace-nowrap";
+      });
+      const activeBtn = topic === 'ALL' ? document.getElementById('tabTopicALL') :
+        document.getElementById(`tabTopic${subtopics.indexOf(topic) + 1}`);
+      if (activeBtn) {
+        activeBtn.className = "topic-tab-btn px-2.5 py-1 rounded-full bg-slate-900 text-white dark:bg-blue-600 font-semibold whitespace-nowrap";
+      }
+
+      document.getElementById('filteredIndicator').innerText = topic === 'ALL' ? 'Semua (40)' : topic;
+      currentQuestionIndex = 0;
+      buildPaletteGrid();
+      renderCurrentQuestion();
+    }
+
+    function renderCurrentQuestion() {
+      const activeList = getFilteredQuestions();
+      if (activeList.length === 0) return;
+      if (currentQuestionIndex >= activeList.length) currentQuestionIndex = 0;
+
+      const q = activeList[currentQuestionIndex];
+      const qId = q.id;
+
+      document.getElementById('badgeCurrentQNum').innerText = qId;
+      document.getElementById('currentRajahNumber').innerText = q.rajahNo;
+      document.getElementById('currentCategoryTitle').innerText = q.topic;
+      document.getElementById('progressText').innerText = `${currentQuestionIndex + 1}/${activeList.length}`;
+      document.getElementById('progressBar').style.width = `${((currentQuestionIndex + 1) / activeList.length) * 100}%`;
+
+      document.getElementById('qTextBM').innerHTML = `${qId}. ${q.questionBM}`;
+      document.getElementById('qTextBI').innerHTML = q.questionBI;
+
+      // Strictly Original Image Handling (NO Redrawn SVGs)
+      const diagWrapper = document.getElementById('diagramWrapper');
+      const imgEl = document.getElementById('originalQuestionImg');
+      const placeholderEl = document.getElementById('unloadedDiagramPlaceholder');
+      const btnCrop = document.getElementById('btnOpenCropModal');
+      const btnFull = document.getElementById('btnToggleFullPage');
+      const sourceLabel = document.getElementById('diagramSourceLabel');
+
+      const customOrExtractedImg = showingFullPageMode && q.crop && extractedImagesMap[`page_${q.crop.page}`]
+        ? extractedImagesMap[`page_${q.crop.page}`]
+        : extractedImagesMap[`q_${qId}`];
+
+      if (q.hasDiagram || customOrExtractedImg) {
+        diagWrapper.classList.remove('hidden');
+        sourceLabel.innerHTML = `<i class="fa-regular fa-image mr-1"></i> ${q.rajahNo} ${showingFullPageMode ? '(Halaman Penuh Asal)' : '(Rajah Asal)'}`;
+
+        if (customOrExtractedImg) {
+          imgEl.src = customOrExtractedImg;
+          imgEl.classList.remove('hidden');
+          placeholderEl.classList.add('hidden');
+          if (q.crop && extractedImagesMap[`page_${q.crop.page}`]) {
+            btnCrop.classList.remove('hidden');
+            btnFull.classList.remove('hidden');
+          }
+        } else {
+          imgEl.classList.add('hidden');
+          placeholderEl.classList.remove('hidden');
+          document.getElementById('placeholderTitle').innerText = `Rajah Asal Soalan ${qId} (${q.rajahNo})`;
+          btnCrop.classList.add('hidden');
+          btnFull.classList.add('hidden');
+        }
+      } else {
+        diagWrapper.classList.add('hidden');
+      }
+
+      // Bookmark button state
+      const btnBm = document.getElementById('btnBookmark');
+      if (bookmarkedQs[qId]) {
+        btnBm.innerHTML = '<i class="fa-solid fa-bookmark text-amber-500"></i> Disimpan';
+        btnBm.className = "p-2 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/40 text-amber-600 text-xs flex items-center gap-1.5 font-bold";
+      } else {
+        btnBm.innerHTML = '<i class="fa-regular fa-bookmark"></i> Simpan';
+        btnBm.className = "p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-amber-500 transition text-xs flex items-center gap-1.5 font-semibold";
+      }
+
+      // Options rendering
+      const optionsContainer = document.getElementById('optionsList');
+      optionsContainer.innerHTML = '';
+      const selected = userAnswers[qId];
+      const isChecked = (quizMode === 'practice' && checkedStatus[qId]) || isExamFinished;
+
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.onclick = () => selectOption(qId, opt.key);
+
+        let baseStyle = "w-full text-left p-3.5 rounded-xl border flex items-center gap-3 transition-all-custom cursor-pointer ";
+        let badgeStyle = "w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ";
+
+        if (!isChecked) {
+          if (selected === opt.key) {
+            baseStyle += "border-blue-600 bg-blue-50/80 dark:bg-blue-900/30 text-blue-950 dark:text-blue-100 ring-2 ring-blue-500/20";
+            badgeStyle += "bg-blue-600 text-white shadow";
+          } else {
+            baseStyle += "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100";
+            badgeStyle += "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300";
+          }
+        } else {
+          if (opt.key === q.answer) {
+            baseStyle += "border-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-100 ring-2 ring-emerald-500/20 font-medium";
+            badgeStyle += "bg-emerald-600 text-white";
+          } else if (selected === opt.key && selected !== q.answer) {
+            baseStyle += "border-rose-500 bg-rose-50 dark:bg-rose-950/40 text-rose-950 dark:text-rose-100 ring-2 ring-rose-500/20";
+            badgeStyle += "bg-rose-600 text-white";
+          } else {
+            baseStyle += "border-slate-200 dark:border-slate-800 opacity-55 bg-white dark:bg-slate-900 text-slate-500";
+            badgeStyle += "bg-slate-100 dark:bg-slate-800 text-slate-400";
+          }
+        }
+
+        btn.className = baseStyle;
+        btn.innerHTML = `
+          <span class="${badgeStyle}">${opt.key}</span>
+          <div class="flex-1">
+            <span class="block text-xs sm:text-sm font-semibold">${opt.bm}</span>
+            ${opt.bi ? `<span class="block text-[11px] italic text-slate-500 dark:text-slate-400">${opt.bi}</span>` : ''}
+          </div>
+          ${isChecked && opt.key === q.answer ? '<i class="fa-solid fa-circle-check text-emerald-600 text-base ml-auto"></i>' : ''}
+          ${isChecked && selected === opt.key && selected !== q.answer ? '<i class="fa-solid fa-circle-xmark text-rose-600 text-base ml-auto"></i>' : ''}
+        `;
+        optionsContainer.appendChild(btn);
+      });
+
+      // Explanation Container
+      const expBox = document.getElementById('explanationContainer');
+      const expBadge = document.getElementById('explanationBadge');
+      const expContent = document.getElementById('explanationContent');
+
+      if (isChecked) {
+        expBox.classList.remove('hidden');
+        expBox.classList.add('flex');
+        const isCorrect = (selected === q.answer);
+        if (isCorrect) {
+          expBox.className = "flex flex-col gap-2 p-4 rounded-xl border border-emerald-300 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/30";
+          expBadge.className = "px-2 py-0.5 text-xs font-bold rounded bg-emerald-200 text-emerald-900 dark:bg-emerald-900/60 dark:text-emerald-200";
+          expBadge.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Jawapan Tepat';
+        } else {
+          expBox.className = "flex flex-col gap-2 p-4 rounded-xl border border-rose-300 dark:border-rose-800 bg-rose-50/60 dark:bg-rose-950/30";
+          expBadge.className = "px-2 py-0.5 text-xs font-bold rounded bg-rose-200 text-rose-900 dark:bg-rose-900/60 dark:text-rose-200";
+          expBadge.innerHTML = `<i class="fa-solid fa-xmark mr-1"></i> Kurang Tepat (Jawapan Betul: ${q.answer})`;
+        }
+        expContent.innerHTML = q.explanation;
+      } else {
+        expBox.classList.add('hidden');
+      }
+
+      document.getElementById('btnPrev').disabled = (currentQuestionIndex === 0);
+      document.getElementById('btnNext').disabled = (currentQuestionIndex === activeList.length - 1);
+
+      updatePaletteUI();
+      updateTopicOverview();
+    }
+
+    function selectOption(qId, key) {
+      if (isExamFinished && quizMode === 'exam') return;
+      userAnswers[qId] = key;
+      saveState();
+      renderCurrentQuestion();
+    }
+
+    function checkCurrentAnswer() {
+      const activeList = getFilteredQuestions();
+      const q = activeList[currentQuestionIndex];
+      if (!userAnswers[q.id]) {
+        showCustomDialog("Pilih Jawapan Dahulu", "Sila pilih salah satu pilihan jawapan sebelum menyemak.");
+        return;
+      }
+      checkedStatus[q.id] = true;
+      renderCurrentQuestion();
+    }
+
+    function toggleBookmarkCurrent() {
+      const activeList = getFilteredQuestions();
+      const q = activeList[currentQuestionIndex];
+      bookmarkedQs[q.id] = !bookmarkedQs[q.id];
+      saveState();
+      renderCurrentQuestion();
+    }
+
+    function navigateQuestion(delta) {
+      const activeList = getFilteredQuestions();
+      const newIdx = currentQuestionIndex + delta;
+      if (newIdx >= 0 && newIdx < activeList.length) {
+        currentQuestionIndex = newIdx;
+        showingFullPageMode = false;
+        renderCurrentQuestion();
+      }
+    }
+
+    function buildPaletteGrid() {
+      const grid = document.getElementById('paletteGrid');
+      grid.innerHTML = '';
+      const activeList = getFilteredQuestions();
+
+      activeList.forEach((q, idx) => {
+        const btn = document.createElement('button');
+        btn.id = `palette-btn-${q.id}`;
+        btn.innerText = q.id;
+        btn.onclick = () => {
+          currentQuestionIndex = idx;
+          showingFullPageMode = false;
+          renderCurrentQuestion();
+        };
+        btn.className = "h-8 w-full rounded font-mono text-xs font-bold flex items-center justify-center border transition";
+        grid.appendChild(btn);
+      });
+      updatePaletteUI();
+    }
+
+    function updatePaletteUI() {
+      const activeList = getFilteredQuestions();
+      activeList.forEach((q, idx) => {
+        const btn = document.getElementById(`palette-btn-${q.id}`);
+        if (!btn) return;
+        const ans = userAnswers[q.id];
+        const isChecked = (quizMode === 'practice' && checkedStatus[q.id]) || isExamFinished;
+        const isCurrent = (idx === currentQuestionIndex);
+
+        let style = "h-8 w-full rounded font-mono text-xs font-bold flex items-center justify-center border transition ";
+
+        if (isCurrent) {
+          style += "ring-2 ring-blue-600 border-blue-600 bg-blue-600 text-white shadow";
+        } else if (isChecked) {
+          if (ans === q.answer) style += "bg-emerald-600 text-white border-emerald-700";
+          else style += "bg-rose-600 text-white border-rose-700";
+        } else if (ans) {
+          style += "bg-blue-100 dark:bg-blue-900/60 text-blue-900 dark:text-blue-200 border-blue-300 dark:border-blue-700";
+        } else {
+          style += "bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:bg-slate-100";
+        }
+
+        btn.className = style;
+      });
+
+      const answeredTotal = Object.keys(userAnswers).length;
+      document.getElementById('statSummaryCompact').innerText = `${answeredTotal}/40 Dijawab`;
+    }
+
+    function updateTopicOverview() {
+      const container = document.getElementById('topicProgressBarContainer');
+      container.innerHTML = '';
+
+      subtopics.forEach(topic => {
+        const topicQs = questions.filter(q => q.topic === topic);
+        const answeredInTopic = topicQs.filter(q => userAnswers[q.id]).length;
+        const pct = Math.round((answeredInTopic / topicQs.length) * 100);
+
+        const row = document.createElement('div');
+        row.className = "space-y-1";
+        row.innerHTML = `
+          <div class="flex justify-between text-[11px] text-slate-600 dark:text-slate-400">
+            <span>${topic}</span>
+            <span class="font-mono font-bold">${answeredInTopic}/${topicQs.length}</span>
+          </div>
+          <div class="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+            <div class="bg-blue-600 h-full rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    /* =========================================================================
+       CUSTOM DIALOGS & EXAM SUBMISSION
+       ========================================================================= */
+    function showCustomDialog(title, message, onConfirm = null) {
+      document.getElementById('dialogTitle').innerText = title;
+      document.getElementById('dialogMessage').innerText = message;
+      const btnCancel = document.getElementById('dialogBtnCancel');
+      const btnConfirm = document.getElementById('dialogBtnConfirm');
+
+      if (onConfirm) {
+        btnCancel.classList.remove('hidden');
+        btnConfirm.onclick = () => {
+          closeCustomDialog();
+          onConfirm();
+        };
+      } else {
+        btnCancel.classList.add('hidden');
+        btnConfirm.onclick = closeCustomDialog;
+      }
+
+      document.getElementById('customDialogModal').classList.remove('hidden');
+    }
+
+    function closeCustomDialog() {
+      document.getElementById('customDialogModal').classList.add('hidden');
+    }
+
+    function openResetConfirmModal() {
+      showCustomDialog(
+        "Reset Semua Jawapan?",
+        "Adakah anda pasti mahu memadamkan semua pilihan jawapan anda untuk memulakan semula latihan?",
+        () => {
+          userAnswers = {};
+          checkedStatus = {};
+          isExamFinished = false;
+          saveState();
+          renderCurrentQuestion();
+        }
+      );
+    }
+
+    function confirmSubmitExam() {
+      const unanswered = questions.filter(q => !userAnswers[q.id]).length;
+      let msg = "Adakah anda bersedia untuk menghantar jawapan ujian anda?";
+      if (unanswered > 0) msg += ` (Masih terdapat ${unanswered} soalan yang belum dijawab).`;
+      showCustomDialog("Hantar Kertas Ujian", msg, submitExam);
+    }
+
+    function submitExam() {
+      clearInterval(examTimerInterval);
+      isExamFinished = true;
+
+      let correct = 0;
+      let topicBreakdown = {};
+      subtopics.forEach(t => topicBreakdown[t] = { total: 0, correct: 0 });
+
+      questions.forEach(q => {
+        topicBreakdown[q.topic].total++;
+        if (userAnswers[q.id] === q.answer) {
+          correct++;
+          topicBreakdown[q.topic].correct++;
+        }
+      });
+
+      const percentage = Math.round((correct / questions.length) * 100);
+      let grade = 'G';
+      if (percentage >= 85) grade = 'A+';
+      else if (percentage >= 75) grade = 'A';
+      else if (percentage >= 70) grade = 'A-';
+      else if (percentage >= 65) grade = 'B+';
+      else if (percentage >= 60) grade = 'B';
+      else if (percentage >= 50) grade = 'C';
+      else if (percentage >= 40) grade = 'D';
+
+      const sName = document.getElementById('studentName').value || 'Pelajar';
+      const sID = document.getElementById('studentID').value || '-';
+      const sMRSM = document.getElementById('studentMRSM').value || '-';
+      document.getElementById('resultStudentInfo').innerText = `${sName} (${sID}) • MRSM ${sMRSM}`;
+
+      document.getElementById('finalScoreVal').innerText = `${correct}/40`;
+      document.getElementById('finalPercentage').innerText = `${percentage}%`;
+      document.getElementById('finalGrade').innerText = grade;
+
+      const resDiv = document.getElementById('subtopicResults');
+      resDiv.innerHTML = '';
+      subtopics.forEach(t => {
+        const item = topicBreakdown[t];
+        const pct = item.total > 0 ? Math.round((item.correct / item.total) * 100) : 0;
+        const row = document.createElement('div');
+        row.className = "p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-between";
+        row.innerHTML = `
+          <div>
+            <div class="font-bold text-slate-800 dark:text-slate-200">${t}</div>
+            <div class="text-[11px] text-slate-500">${item.correct}/${item.total} betul</div>
+          </div>
+          <span class="font-mono font-bold ${pct >= 70 ? 'text-emerald-600' : 'text-amber-500'}">${pct}%</span>
+        `;
+        resDiv.appendChild(row);
+      });
+
+      document.getElementById('resultsModal').classList.remove('hidden');
+      renderCurrentQuestion();
+    }
+
+    function closeResultsModal() {
+      document.getElementById('resultsModal').classList.add('hidden');
+    }
+
+    function resetAndRestartExam() {
+      closeResultsModal();
+      userAnswers = {};
+      checkedStatus = {};
+      isExamFinished = false;
+      examTimeRemaining = 60 * 60;
+      saveState();
+      setQuizMode('exam');
+      currentQuestionIndex = 0;
+      renderCurrentQuestion();
+    }
+
+    function toggleFormulaModal() {
+      document.getElementById('formulaModal').classList.toggle('hidden');
+    }
+
+    function toggleDarkMode() {
+      const html = document.documentElement;
+      const icon = document.getElementById('themeIcon');
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        icon.className = 'fa-solid fa-moon text-sm';
+        localStorage.setItem('fizik_theme', 'light');
+      } else {
+        html.classList.add('dark');
+        icon.className = 'fa-solid fa-sun text-amber-400 text-sm';
+        localStorage.setItem('fizik_theme', 'dark');
+      }
+    }
+
+    window.onload = async function() {
+      if (localStorage.getItem('fizik_theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.getElementById('themeIcon').className = 'fa-solid fa-sun text-amber-400 text-sm';
+      }
+      loadSavedState();
+      await loadAllImagesFromDB();
+      updateBannerAfterExtraction();
+      buildPaletteGrid();
+      setQuizMode('practice');
+      renderCurrentQuestion();
+    };
+  </script>
+</body>
+</html>
